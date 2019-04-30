@@ -37,11 +37,11 @@ module.exports = function () {
     filter: shouldCompress
   }))
 
-  const wp = new WebPurify({
-    api_key: config.webpurify_API_KEY
+  //const wp = new WebPurify({
+  //  api_key: config.webpurify_API_KEY
     //, endpoint:   'us'  // Optional, available choices: 'eu', 'ap'. Default: 'us'.
     //, enterprise: false // Optional, set to true if you are using the enterprise API, allows SSL
-  });
+  //});
 
   ///////////////////////////////////////////////////////
   //
@@ -171,7 +171,7 @@ module.exports = function () {
 
   //  profanity checker
   async function checkProfanity(text){
-    return wp.checkCount(text)
+    return null;//wp.checkCount(text)
   }
 
   return router;
