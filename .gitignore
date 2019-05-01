@@ -16,3 +16,4 @@ config/development.config.js
 nginx
 TMP
 package-lock.json
+build
