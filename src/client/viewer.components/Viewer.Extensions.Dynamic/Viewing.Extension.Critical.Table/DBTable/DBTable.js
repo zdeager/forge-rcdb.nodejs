@@ -83,13 +83,12 @@ class DBTable extends React.Component {
   //
   /////////////////////////////////////////////////////////
   onRowClicked (id) {
-    console.log(id);
-    console.log(this.props);
+    
     const selectedItem = find(
       this.props.items, {
         _id: id
       })
-    console.log(selectedItem)
+    
     if (selectedItem) {
 
       this.props.onSelectItem(
@@ -123,12 +122,37 @@ class DBTable extends React.Component {
 
           return {
             name: dbItem.name,
+            dataSource: dbItem.dataSource,
+            criticality: dbItem.criticality,
             id: dbItem._id
           }
+        }), {
+
+          select: {
+            criticality: [
+              {value:1, label:1},
+              {value:2, label:2},
+              {value:3, label:3},
+              {value:4, label:4},
+              {value:5, label:5}
+            ]
+          }
         })
-      )
 
       this.select = $('select', '.db-table').niceSelect()
+
+      this.select.on('change', (e, option) => {
+
+        const id = $(option).parents('tr')[0].id
+
+        const dbItem = find(this.props.items, {
+          _id: id
+        })
+
+        dbItem.criticality = parseInt($(option).attr('data-value'))
+
+        this.props.onUpdateItem(dbItem)
+      })
 
       $('.footable > tbody > tr > td:first-child').off(
         'click')
@@ -215,6 +239,15 @@ class DBTable extends React.Component {
               <th className="db-column fooId"
                 data-field="name">
                 <label>Critical Asset Group</label>
+              </th>
+              <th className="db-column"
+                data-field="dataSource">
+                <label>Data Source</label>
+              </th>
+              <th className="db-column"
+                data-field="criticality"
+                data-ft-control="select">
+                Criticality
               </th>
               <th className="db-column hidden">
                 _id

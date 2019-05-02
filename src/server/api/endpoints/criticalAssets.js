@@ -68,7 +68,7 @@ module.exports = function () {
       const items = await dbSvc.getItems(
         assetsConfig.collection,
         opts)
-
+      
       res.json(items)
 
     } catch (ex) {
@@ -141,6 +141,11 @@ module.exports = function () {
       }
 
       const asset = req.body
+      const query = { name: asset.name }
+
+      await dbSvc.upsert(
+          assetsConfig.collection,
+          asset, query)
       
       res.json(asset)        
 

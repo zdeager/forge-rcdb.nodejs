@@ -25,8 +25,8 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
 
     super (viewer, options)
 
-    //this.onUpdateItemSocket = this.onUpdateItemSocket.bind(this)
-    //this.onUpdateItem = this.onUpdateItem.bind(this)
+    this.onUpdateItemSocket = this.onUpdateItemSocket.bind(this)
+    this.onUpdateItem = this.onUpdateItem.bind(this)
     this.onSelectItem = this.onSelectItem.bind(this)
 
     this.onResize = throttle(this.onResize, 250)
@@ -81,8 +81,8 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
       })
     })
 
-    //this.socketSvc.on('material.update',
-    //  this.onUpdateItemSocket)
+    this.socketSvc.on('asset.update',
+      this.onUpdateItemSocket)
 
     this.socketSvc.connect()
 
@@ -118,8 +118,8 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
 
     console.log('Viewing.Extension.Critical.Table unloaded')
 
-    //this.socketSvc.off('material.update',
-    //  this.onUpdateItemSocket)
+    this.socketSvc.off('asset.update',
+      this.onUpdateItemSocket)
 
     super.unload ()
 
@@ -139,20 +139,12 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
 
       if (!externalUpdate) {
 
-        this.dbAPI.postItem(this.options.database, item)
+        this.dbAPI.postItem(this.options.collection, item)
 
         this.socketSvc.broadcast(
-          'material.update',
+          'asset.update',
           item)
       }
-
-      const entry = this.materialMap[item.name]
-
-      entry.dbMaterial = item
-
-      entry.totalCost = entry.totalMass * this.toUSD(
-        entry.dbMaterial.price,
-        entry.dbMaterial.currency)
 
       const items = state.items.map((dbItem) => {
 
@@ -170,15 +162,8 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
         guid
       })
 
-      this.costBreakDownExtension.computeCost(
-        this.materialMap)
-
-      const dbProperties =
-        this.buildViewerPanelProperties(
-          item)
-
-      this.viewerPropertiesExtension.updateProperties(
-        dbProperties)
+      //this.costBreakDownExtension.computeCost(
+      //  this.materialMap)
     }
   }
   
@@ -201,8 +186,7 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   onSelectItem (item, propagate) {
 
-    console.log(item);
-    console.log(this.criticalMap);
+    
     if (item) {
 
       const critical = this.criticalMap[item.name]
@@ -243,24 +227,7 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
     // get critical assets from db
     const dbCriticals =
       await this.dbAPI.getItems(
-        this.options.collection)
-    console.log('aaaa', dbCriticals);
-
-    
-    // const dbCriticals = [
-    //   {
-    //     "_id": "id0",
-    //     "name": "Critical rectangular duct"
-    //   },
-    //   {
-    //     "_id": "id1",
-    //     "name": "Critical round pipe"
-    //   },
-    //   {
-    //     "_id": "id3",
-    //     "name": "blah"
-    //   }
-    // ]
+        this.options.collection);
 
     // get components
     const componentIds =
@@ -281,15 +248,7 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
           })
       });
 
-    //console.log(criticalPropResults);
-    //var arrayLength = criticalResults.length;
-    //for (var i = 0; i < arrayLength; i++) {
-    //    console.log(criticalResults[i]);
-    //}
-
-    // create map od critical assets
-    //const criticalMap = {}
-
+    // create map of critical assets
     componentIds.forEach((dbId) => {
 
         const criticalProp = find(criticalResults, { dbId })
@@ -322,17 +281,15 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
           }
         }
       })
-
-    console.log(this.criticalMap);
     
+    // filter out non critical assets
     const filteredCritical =
         dbCriticals.filter((critical) => {
 
          return (this.criticalMap[critical.name] != null)
        })
 
-    console.log(filteredCritical);
-
+    // update state
     this.react.setState({
         items: filteredCritical,
         guid: this.guid()
@@ -382,7 +339,7 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
         <Loader show={showLoader}/>
         <DBTable
           onSelectItem={this.onSelectItem}
-          //onUpdateItem={this.onUpdateItem}
+          onUpdateItem={this.onUpdateItem}
           selectedItem={selectedItem}
           items={items}
           guid={guid}
