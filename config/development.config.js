@@ -111,6 +111,14 @@ const config = {
         collection:'rcdb.materials'
       }
     },
+    criticalAssets: {
+      assets: {
+        collection:'rcdb.criticalAssets'
+      },
+      data: {
+        collection:'rcdb.criticalAssetData'
+      }
+    },
     users: {
       collection:'rcdb.users'
     }

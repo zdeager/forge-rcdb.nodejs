@@ -241,23 +241,26 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
   async onModelCompletedLoad () {
 
     // get critical assets from db
-    //const dbCritical =
-    //  await this.dbAPI.getItems(
-    //    this.options.database)
-    const dbCriticals = [
-      {
-        "_id": "id0",
-        "name": "Critical rectangular duct"
-      },
-      {
-        "_id": "id1",
-        "name": "Critical round pipe"
-      },
-      {
-        "_id": "id2",
-        "name": "Critical Flex Duct"
-      }
-    ]
+    const dbCriticals =
+      await this.dbAPI.getItems(
+        this.options.collection)
+    console.log('aaaa', dbCriticals);
+
+    
+    // const dbCriticals = [
+    //   {
+    //     "_id": "id0",
+    //     "name": "Critical rectangular duct"
+    //   },
+    //   {
+    //     "_id": "id1",
+    //     "name": "Critical round pipe"
+    //   },
+    //   {
+    //     "_id": "id3",
+    //     "name": "blah"
+    //   }
+    // ]
 
     // get components
     const componentIds =
