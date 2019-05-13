@@ -123,6 +123,7 @@ class DBTable extends React.Component {
           return {
             name: dbItem.name,
             dataSource: dbItem.dataSource,
+            assignee: dbItem.assignee,
             criticality: dbItem.criticality,
             id: dbItem._id
           }
@@ -171,6 +172,30 @@ class DBTable extends React.Component {
 
       $('.footable > thead > tr > th').on (
         'click', (e) => this.onHeaderClicked(e))
+
+      $("td[contenteditable='true']", '.footable').on (
+        'keydown keypress',  (e) => {
+
+          // Only allow edits for assignee
+          if($(e.target).index() === 2) {
+
+            // prevents ENTER
+            if (e.keyCode === 13) {
+
+              const field = this.getField(e.target)
+
+              const value = this.getValue(e.target)
+
+              let dbItem = this.getDbItem(e.target)
+
+              dbItem[field] = value
+
+              this.props.onUpdateItem(dbItem)
+
+              e.preventDefault()
+            }
+          }
+        });
 
       $('.scroll tbody').scroll(()=>{
 
@@ -243,6 +268,10 @@ class DBTable extends React.Component {
               <th className="db-column"
                 data-field="dataSource">
                 <label>Data Source</label>
+              </th>
+              <th className="db-column fooEditable"
+                data-field="assignee">
+                Assignee
               </th>
               <th className="db-column"
                 data-field="criticality"
