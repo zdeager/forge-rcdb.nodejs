@@ -161,9 +161,6 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
         items,
         guid
       })
-
-      //this.costBreakDownExtension.computeCost(
-      //  this.materialMap)
     }
   }
   
@@ -186,12 +183,13 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   onSelectItem (item, propagate) {
 
+    let dbIds = null;
     
     if (item) {
 
       const critical = this.criticalMap[item.name]
 
-      const dbIds = critical
+      dbIds = critical
         ? critical.components
         : (item.components || [])
 
@@ -213,9 +211,9 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
       selectedItem: item
     })
 
-    //if (propagate) {
-    //  this.costBreakDownExtension.setSelectedItem(item)
-    //}
+    if (propagate) {
+      this.viz.setSelectedItem(item, dbIds);
+    }
   }
 
   /////////////////////////////////////////////////////////
@@ -294,6 +292,15 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
         items: filteredCritical,
         guid: this.guid()
       })
+
+    // link to viz component
+    this.viz =
+      this.viewer.getExtension(
+        'Viewing.Extension.Critical.Viz')
+
+    this.viz.on(
+      'item.selected',
+      this.onSelectItem)
 
   }
 

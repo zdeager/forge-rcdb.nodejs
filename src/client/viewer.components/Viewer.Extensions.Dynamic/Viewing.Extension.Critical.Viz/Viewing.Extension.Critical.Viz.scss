@@ -1,4 +1,4 @@
-.database-cost-breakdown {
+.visual-report {
 
   .title {
     display: inline-flex;
@@ -22,5 +22,26 @@
   .content {
     height: 100%;
   }
-}
 
+  .drop {
+    margin-top: 4px;
+
+    .dropdown {
+      margin-left: 1px;
+      height: 32px;
+      top: 4px;
+
+      .dropdown-toggle.btn {
+        background: #dedede;
+        padding: 1px 12px;
+        min-width: 198px;
+        border-radius: 0;
+      }
+    }
+
+    .open > .dropdown-menu {
+      display: block;
+      min-width: 198px;
+    }
+  }
+}

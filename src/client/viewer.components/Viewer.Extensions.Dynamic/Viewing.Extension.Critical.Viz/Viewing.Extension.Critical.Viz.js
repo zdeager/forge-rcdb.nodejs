@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////
-// Viewing.Extension.Database.CostBreakdown
+// Viewing.Extension.Critical.Viz
 // by Philippe Leefsma, September 2017
-//
+//    zde, May 2019
 /////////////////////////////////////////////////////////
 import MultiModelExtensionBase from 'Viewer.MultiModelExtensionBase'
 import {ReflexContainer, ReflexElement} from 'react-reflex'
@@ -12,13 +12,14 @@ import BaseComponent from 'BaseComponent'
 import ServiceManager from 'SvcManager'
 import {findDOMNode} from 'react-dom'
 import Toolkit from 'Viewer.Toolkit'
-import PieLegend from './PieLegend'
 import sortBy from 'lodash/sortBy'
 import PieChart from 'PieChart'
 import React from 'react'
 import d3 from 'd3'
+import DropdownButton from 'react-bootstrap/lib/DropdownButton'
+import MenuItem from 'react-bootstrap/lib/MenuItem'
 
-class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
+class CriticalAssetVizExtension extends MultiModelExtensionBase {
 
   /////////////////////////////////////////////////////////
   // Class constructor
@@ -31,6 +32,7 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
     this.onItemSelected = this.onItemSelected.bind(this)
 
     this.react = options.react
+
   }
 
   /////////////////////////////////////////////////////////
@@ -39,7 +41,7 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   get className() {
 
-    return 'database-cost-breakdown'
+    return 'visual-report'
   }
 
   /////////////////////////////////////////////////////////
@@ -59,7 +61,9 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
 
     this.react.setState({
 
-      selectedItem: null,
+      selectedGroup: null,
+      selectedIDs: null,
+      selectedID: null,
       legendData: [],
       pieData: [],
       guid: null
@@ -87,140 +91,6 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
     return true
   }
 
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  buildLegendData (materialMap, fieldName) {
-
-    const keys = Object.keys (materialMap)
-
-    const length = keys.length
-
-    const colors = d3.scale.linear()
-      .domain([0, length * .33, length * .66, length])
-      .range([
-        '#FCB843',
-        '#C2149F',
-        '#0CC4BD',
-        '#0270E9'
-      ])
-
-    let totalCost = 0.0
-
-    for (let key in materialMap) {
-
-      const item = materialMap[key]
-
-      totalCost += item.totalCost
-    }
-
-    const legendData = keys.map((key, idx) => {
-
-      const item = materialMap[key]
-
-      const costPercent = (item.totalCost * 100 / totalCost).toFixed(2)
-
-      const percent = item.totalCost * 100 / totalCost
-
-      const cost = item.totalCost.toFixed(2)
-
-      const label = `${key}: ${costPercent}% (${cost} USD)`
-
-      return {
-        value: parseFloat(item[fieldName].toFixed(2)),
-        percentTxt: '% ' + percent.toFixed(2),
-        cost: '$USD ' + cost,
-        color: colors(idx),
-        name: key,
-        percent,
-        label,
-        item
-      }
-    })
-
-    return sortBy(legendData,
-      (entry) => {
-        return entry.value * -1.0
-      })
-  }
-
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  groupDataSmallerThan (data, threshold) {
-
-    const groupedData = []
-
-    let otherData = {
-      value: 0,
-      percent: 0,
-      item: {
-        components: []
-      }
-    }
-
-    data.forEach((entry) => {
-
-      if (entry.percent < threshold) {
-
-        const components = [
-          ...otherData.item.components,
-          ...entry.item.components
-        ]
-
-        const percent = otherData.percent + entry.percent
-
-        const value = otherData.value + entry.value
-
-        const label = `Other materials: ` +
-          `${percent.toFixed(2)}% ` +
-          `(${value.toFixed(2)} USD)`
-
-        otherData = Object.assign({}, entry, {
-          percent,
-          label,
-          value,
-          item: {
-            components
-          }
-        })
-
-      } else {
-
-        groupedData.push(entry)
-      }
-    })
-
-    if (otherData.value > 0) {
-
-      groupedData.push(otherData)
-    }
-
-    return groupedData
-  }
-
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  computeCost (materialMap) {
-
-    const legendData = this.buildLegendData(
-      materialMap,
-      'totalCost')
-
-    const pieData = this.groupDataSmallerThan(
-      legendData,
-      5.0)
-
-    this.react.setState({
-      guid: this.guid(),
-      legendData,
-      pieData
-    })
-  }
 
   /////////////////////////////////////////////////////////
   //
@@ -239,17 +109,33 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   onItemSelected (item) {
 
-    this.emit('item.selected', item)
+    console.log('selected item', item);
+
+    this.viewer.fitToView([item])
+
+    Toolkit.isolateFull(
+      this.viewer,
+      [item])
+
+    this.react.setState({
+      selectedID: item
+    })
+
+    //this.emit('item.selected', item)
   }
 
   /////////////////////////////////////////////////////////
   //
   //
   /////////////////////////////////////////////////////////
-  setSelectedItem (item) {
+  setSelectedItem (group, items) {
+
+    console.log('set items', items);
 
     this.react.setState({
-      selectedItem: item
+      selectedIDs: items,
+      selectedGroup: group,
+      selectedID: null,
     })
   }
 
@@ -259,13 +145,53 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   renderTitle () {
 
+    const group = this.react.getState().selectedGroup;
+
+    const items = this.react.getState().selectedIDs;
+
+    let menuItems = null;
+
+    if (items) {
+      menuItems = items.map((item, idx) => {
+        return (
+          <MenuItem eventKey={idx} key={idx} onClick={() => {
+
+            this.onItemSelected(item);
+          }}>
+            { item }
+          </MenuItem>
+        )
+      })
+    }
+
+    const item = this.react.getState().selectedID;
+
+    let title = null;
+
+    if (items && item) {
+      title = group.name + " : " + item;
+    } else if (items) {
+      title = group.name;
+    } else {
+      title = "Select Asset Group";
+    }
+
     return (
       <div className="title">
         <label>
           Critical Asset Data
         </label>
+        <div className="drop">
+          <DropdownButton
+            title={title}
+            key="extra-dropdown"
+            id="extra-dropdown">
+           { menuItems }
+          </DropdownButton>
+        </div>
       </div>
     )
+    
   }
 
   /////////////////////////////////////////////////////////
@@ -306,9 +232,7 @@ class DatabaseCostBreakdownExtension extends MultiModelExtensionBase {
         renderTitle={() => this.renderTitle(opts.docked)}
         showTitle={opts.showTitle}
         className={this.className}>
-
         { this.renderContent() }
-
       </WidgetContainer>
     )
   }
@@ -375,15 +299,6 @@ class CostGraphContainer extends BaseComponent {
 
     return (
       <ReflexContainer>
-        <ReflexElement flex={this.state.showPie ? 0.4 : 1}>
-          {
-            legendData.length &&
-            <PieLegend
-              onItemSelected={onItemSelected}
-              data={legendData}
-            />
-          }
-        </ReflexElement>
         {
           this.state.showPie &&
           <ReflexElement>
@@ -406,5 +321,5 @@ class CostGraphContainer extends BaseComponent {
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
-  DatabaseCostBreakdownExtension.ExtensionId,
-  DatabaseCostBreakdownExtension)
+  CriticalAssetVizExtension.ExtensionId,
+  CriticalAssetVizExtension)
