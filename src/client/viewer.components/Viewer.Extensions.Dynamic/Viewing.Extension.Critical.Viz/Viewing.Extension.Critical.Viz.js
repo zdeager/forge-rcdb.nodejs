@@ -13,7 +13,7 @@ import ServiceManager from 'SvcManager'
 import {findDOMNode} from 'react-dom'
 import Toolkit from 'Viewer.Toolkit'
 import sortBy from 'lodash/sortBy'
-import PieChart from 'PieChart'
+import MultiLine from 'MultiLine'
 import React from 'react'
 import d3 from 'd3'
 import DropdownButton from 'react-bootstrap/lib/DropdownButton'
@@ -64,8 +64,6 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       selectedGroup: null,
       selectedIDs: null,
       selectedID: null,
-      legendData: [],
-      pieData: [],
       guid: null
 
     }).then (() => {
@@ -201,20 +199,15 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
   renderContent () {
 
     const {
-      legendData,
-      pieData,
       guid
     } = this.react.getState()
 
-    const showLoader = !legendData.length
+    const item = !this.react.getState().selectedID;
 
     return (
       <div className="content">
-        <Loader show={showLoader}/>
-        <CostGraphContainer
-          onItemSelected={this.onItemSelected}
-          legendData={legendData}
-          pieData={pieData}
+        <Loader show={item}/>
+        <MultiLineContainer
           guid={guid}
         />
       </div>
@@ -238,7 +231,7 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
   }
 }
 
-class CostGraphContainer extends BaseComponent {
+class MultiLineContainer extends BaseComponent {
 
   /////////////////////////////////////////////////////////
   //
@@ -248,11 +241,6 @@ class CostGraphContainer extends BaseComponent {
 
     super ()
 
-    this.onSegmentClicked = this.onSegmentClicked.bind(this)
-
-    this.state = {
-      showPie: false
-    }
   }
 
   /////////////////////////////////////////////////////////
@@ -265,25 +253,8 @@ class CostGraphContainer extends BaseComponent {
 
     const height = domElement.offsetHeight
 
-    const showPie = !!(height > 220)
-
-    this.assignState({
-      showPie
-    })
   }
 
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  onSegmentClicked (data, expanded) {
-
-    const item = !expanded
-      ? data.item
-      : null
-
-    this.props.onItemSelected (item)
-  }
 
   /////////////////////////////////////////////////////////
   //
@@ -291,26 +262,23 @@ class CostGraphContainer extends BaseComponent {
   /////////////////////////////////////////////////////////
   render() {
 
-    const {
-      onItemSelected,
-      legendData,
-      pieData
-    } = this.props
+    // const {
+    //   legendData,
+    //   pieData
+    // } = this.props
 
     return (
       <ReflexContainer>
         {
-          this.state.showPie &&
           <ReflexElement>
             <div style={{
               background: '#fdfdfd',
               paddingTop:'10px',
               height: '100%'
               }}>
-              <PieChart
-                onSegmentClicked={this.onSegmentClicked}
+              <MultiLine
                 dataGuid={this.props.guid}
-                data={pieData}
+                data={this.props.guid}
               />
             </div>
           </ReflexElement>
