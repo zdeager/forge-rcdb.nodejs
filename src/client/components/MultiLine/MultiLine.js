@@ -16,6 +16,7 @@ class MultiLine extends React.Component {
   constructor (props) {
 
     super (props)
+
   }
 
   /////////////////////////////////////////////////////////
@@ -24,7 +25,7 @@ class MultiLine extends React.Component {
   /////////////////////////////////////////////////////////
   componentDidMount () {
 
-    this.draw(this.props.data)
+    this.draw(this.props.data, this.props.baseline)
   }
 
   /////////////////////////////////////////////////////////
@@ -49,49 +50,19 @@ class MultiLine extends React.Component {
 
     $(this.container).empty()
 
-    this.draw(this.props.data, {
-      effects: {
-        load: {
-          effect: 'none'
-        }
-      }
-    })
+    this.draw(this.props.data, this.props.baseline)
   }
 
   /////////////////////////////////////////////////////////
   //
   //
   /////////////////////////////////////////////////////////
-  draw (datax, opts= {}) {
+  draw (dbData, baseline) {
 
-    // if (!datax || !datax.length) {
+    if (!dbData || !baseline)
+      return;
 
-    //   return
-    // }
-
-    var myData = "date\tBaseline\tSensor\n\
-20111001\t63.4\t62.7\n\
-20111002\t58.0\t59.9\n\
-20111003\t53.3\t59.1\n\
-20111004\t55.7\t58.8\n\
-20111005\t64.2\t58.7\n\
-20111006\t58.8\t57.0\n\
-20111007\t57.9\t56.7\n\
-20111008\t61.8\t56.8\n\
-20111009\t69.3\t56.7\n\
-20111010\t71.2\t60.1\n\
-20111011\t68.7\t61.1\n\
-20111012\t61.8\t61.5\n\
-20111013\t63.0\t64.3\n\
-20111014\t66.9\t67.1\n\
-20111015\t61.7\t64.6\n\
-20111016\t61.8\t61.6\n\
-20111017\t62.8\t61.1\n\
-20111018\t60.8\t59.2\n\
-20111019\t62.1\t58.9\n\
-20111020\t65.1\t57.2\n\
-20111021\t55.6\t56.4\n\
-20111022\t54.4\t60.7\n";
+    console.log("drawing", dbData, baseline);
 
     const container = this.container
 
@@ -102,18 +73,18 @@ class MultiLine extends React.Component {
     //   top: 30
     // }
 
-    // var width = $(container).width();
+    var parent_width = $(container).parent().width();
 
-    // var height = $(container).height()
+    var parent_height = $(container).parent().height();
 
     var margin = {
-        top: 20,
+        top: 15,
         right: 80,
-        bottom: 30,
+        bottom: 80,
         left: 50
       },
-      width = 700 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = parent_width - margin.left - margin.right,
+      height = parent_height - margin.top - margin.bottom;
 
     var parseDate = d3.time.format("%Y%m%d").parse;
 
@@ -127,7 +98,10 @@ class MultiLine extends React.Component {
 
     var xAxis = d3.svg.axis()
       .scale(x)
-      .orient("bottom");
+      .orient("bottom")
+      .ticks(5)
+      .tickSize(6, 0)
+      .tickFormat(d3.time.format("%m/%d %H:%M"));
 
     var yAxis = d3.svg.axis()
       .scale(y)
@@ -139,7 +113,7 @@ class MultiLine extends React.Component {
         return x(d.date);
       })
       .y(function(d) {
-        return y(d.temperature);
+        return y(d.value);
       });
 
     var d3Container = d3.select(container);
@@ -150,51 +124,60 @@ class MultiLine extends React.Component {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var data = d3.tsv.parse(myData);
+    ////////////////
+    ////////////////
+    ////////////////
 
-    color.domain(d3.keys(data[0]).filter(function(key) {
-      return key !== "date";
-    }));
+    color.domain(["Sensor", "Baseline"]);
 
-    console.log(data);
+    var sensorDataArr = dbData.sensor_data.map( data => {
+        return {
+          date: parseDate(data.date),
+          value: +data.value
+        }
+      }
+    )
 
-    data.forEach(function(d) {
-      d.date = parseDate(d.date);
-    });
+    var baselineDataArr = dbData.sensor_data.map( data => {
+        return {
+          date: parseDate(data.date),
+          value: +baseline[0].properties[0].displayValue
+        }
+      }
+    )
 
-    var cities = color.domain().map(function(name) {
-      return {
-        name: name,
-        values: data.map(function(d) {
-          return {
-            date: d.date,
-            temperature: +d[name]
-          };
-        })
-      };
-    });
+    var sources = [
+      {
+        "name": "Sensor",
+        "values": sensorDataArr
+      },
+      {
+        "name": "Baseline",
+        "values": baselineDataArr
+      }
+    ]
 
-    console.log(cities);
+    console.log(sources);
 
-    x.domain(d3.extent(data, function(d) {
+    x.domain(d3.extent(sensorDataArr, function(d) {
       return d.date;
     }));
 
     y.domain([
-      d3.min(cities, function(c) {
+      d3.min(sources, function(c) {
         return d3.min(c.values, function(v) {
-          return v.temperature;
+          return v.value;
         });
       }),
-      d3.max(cities, function(c) {
+      d3.max(sources, function(c) {
         return d3.max(c.values, function(v) {
-          return v.temperature;
+          return v.value;
         });
       })
     ]);
 
     var legend = svg.selectAll('g')
-      .data(cities)
+      .data(sources)
       .enter()
       .append('g')
       .attr('class', 'legend');
@@ -222,7 +205,12 @@ class MultiLine extends React.Component {
     svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+      .call(xAxis)
+      .selectAll("text")  
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-60)");
 
     svg.append("g")
       .attr("class", "y axis")
@@ -232,14 +220,14 @@ class MultiLine extends React.Component {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Temperature (ºF)");
+      .text("Vel. (m/s)");
 
-    var city = svg.selectAll(".city")
-      .data(cities)
+    var source = svg.selectAll(".source")
+      .data(sources)
       .enter().append("g")
-      .attr("class", "city");
+      .attr("class", "source");
 
-    city.append("path")
+    source.append("path")
       .attr("class", "line")
       .attr("d", function(d) {
         return line(d.values);
@@ -248,7 +236,7 @@ class MultiLine extends React.Component {
         return color(d.name);
       });
 
-    city.append("text")
+    source.append("text")
       .datum(function(d) {
         return {
           name: d.name,
@@ -256,7 +244,7 @@ class MultiLine extends React.Component {
         };
       })
       .attr("transform", function(d) {
-        return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")";
+        return "translate(" + x(d.value.date) + "," + y(d.value.value) + ")";
       })
       .attr("x", 3)
       .attr("dy", ".35em")
@@ -264,6 +252,9 @@ class MultiLine extends React.Component {
         return d.name;
       });
 
+    //////////////////
+    //////////////////
+    //////////////////
     var mouseG = svg.append("g")
       .attr("class", "mouse-over-effects");
 
@@ -276,7 +267,7 @@ class MultiLine extends React.Component {
     var lines = document.getElementsByClassName('line');
 
     var mousePerLine = mouseG.selectAll('.mouse-per-line')
-      .data(cities)
+      .data(sources)
       .enter()
       .append("g")
       .attr("class", "mouse-per-line");
@@ -325,7 +316,7 @@ class MultiLine extends React.Component {
 
         d3.selectAll(".mouse-per-line")
           .attr("transform", function(d, i) {
-            console.log(width/mouse[0])
+            //console.log(width/mouse[0])
             var xDate = x.invert(mouse[0]),
                 bisect = d3.bisector(function(d) { return d.date; }).right;
             var idx = bisect(d.values, xDate);

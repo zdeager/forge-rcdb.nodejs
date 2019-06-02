@@ -20,6 +20,7 @@ import DerivativesAPI2Legged from './api/endpoints/derivatives2Legged'
 import ARVRToolkitAPI from './api/endpoints/ar-vr-toolkit'
 import MaterialAPI from './api/endpoints/materials'
 import CriticalAssetAPI from './api/endpoints/criticalAssets'
+import CriticalAssetDataAPI from './api/endpoints/criticalAssetData'
 import ExtractAPI from './api/endpoints/extract'
 import SocketAPI from './api/endpoints/socket'
 import ConfigAPI from './api/endpoints/config'
@@ -170,6 +171,7 @@ app.use('/api/derivatives/2legged', DerivativesAPI2Legged())
 app.use('/api/ar-vr-toolkit', ARVRToolkitAPI())
 app.use('/api/materials', MaterialAPI())
 app.use('/api/criticalAssets', CriticalAssetAPI())
+app.use('/api/criticalAssetData', CriticalAssetDataAPI())
 app.use('/api/extract',   ExtractAPI())
 app.use('/api/socket',    SocketAPI())
 app.use('/api/config',    ConfigAPI())

@@ -9,6 +9,10 @@ multiline {
   shape-rendering: crispEdges;
 }
 
+.x.axis {
+  font-size: smaller;
+}
+
 .x.axis path {
   display: none;
 }

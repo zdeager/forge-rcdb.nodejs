@@ -18,6 +18,7 @@ import React from 'react'
 import d3 from 'd3'
 import DropdownButton from 'react-bootstrap/lib/DropdownButton'
 import MenuItem from 'react-bootstrap/lib/MenuItem'
+import DatabaseAPI from './Viewing.Extension.Critical.API'
 
 class CriticalAssetVizExtension extends MultiModelExtensionBase {
 
@@ -32,6 +33,9 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     this.onItemSelected = this.onItemSelected.bind(this)
 
     this.react = options.react
+
+    this.dbAPI = new DatabaseAPI(
+      this.options.apiUrl)
 
   }
 
@@ -64,7 +68,8 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       selectedGroup: null,
       selectedIDs: null,
       selectedID: null,
-      guid: null
+      data: null,
+      baseline: null
 
     }).then (() => {
 
@@ -89,23 +94,11 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     return true
   }
 
-
   /////////////////////////////////////////////////////////
   //
   //
   /////////////////////////////////////////////////////////
-  onStopResize () {
-
-    this.react.setState({
-      guid: this.guid()
-    })
-  }
-
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  onItemSelected (item) {
+  async onItemSelected (item) {
 
     console.log('selected item', item);
 
@@ -115,8 +108,20 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       this.viewer,
       [item])
 
+    // get asset data from db
+    const dbData =
+      await this.dbAPI.getData(
+        this.options.collection, item)
+
+    // get baseline data
+    const componentProps =
+      await Toolkit.getBulkPropertiesAsync(
+        this.viewer.model, [item], "Velocity");
+
     this.react.setState({
-      selectedID: item
+      selectedID: item,
+      data: dbData,
+      baseline: componentProps
     })
 
     //this.emit('item.selected', item)
@@ -128,12 +133,14 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
   /////////////////////////////////////////////////////////
   setSelectedItem (group, items) {
 
-    console.log('set items', items);
+    console.log('selected items', items);
 
     this.react.setState({
       selectedIDs: items,
       selectedGroup: group,
       selectedID: null,
+      data: null,
+      baseline: null
     })
   }
 
@@ -199,7 +206,9 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
   renderContent () {
 
     const {
-      guid
+      selectedID,
+      data,
+      baseline
     } = this.react.getState()
 
     const item = !this.react.getState().selectedID;
@@ -208,7 +217,9 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       <div className="content">
         <Loader show={item}/>
         <MultiLineContainer
-          guid={guid}
+          guid={selectedID}
+          data={data}
+          baseline={baseline}
         />
       </div>
     )
@@ -262,11 +273,6 @@ class MultiLineContainer extends BaseComponent {
   /////////////////////////////////////////////////////////
   render() {
 
-    // const {
-    //   legendData,
-    //   pieData
-    // } = this.props
-
     return (
       <ReflexContainer>
         {
@@ -278,7 +284,8 @@ class MultiLineContainer extends BaseComponent {
               }}>
               <MultiLine
                 dataGuid={this.props.guid}
-                data={this.props.guid}
+                data={this.props.data}
+                baseline={this.props.baseline}
               />
             </div>
           </ReflexElement>
