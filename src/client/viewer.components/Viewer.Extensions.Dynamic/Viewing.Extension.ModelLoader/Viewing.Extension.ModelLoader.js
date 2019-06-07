@@ -520,7 +520,7 @@ class ModelLoaderExtension extends MultiModelExtensionBase {
       this.eventSink.emit('model.selected', {
         model
       })
-    }
+    }    
   }
 
   /////////////////////////////////////////////////////////
@@ -556,6 +556,13 @@ class ModelLoaderExtension extends MultiModelExtensionBase {
         })
       }
     }
+
+    const extId = 'Viewing.Extension.Critical.Table'
+
+    const table =
+        this.viewer.getExtension(extId)
+
+    await table.reset();
   }
 
   /////////////////////////////////////////////////////////

@@ -166,7 +166,10 @@ class DataManagementExtension extends MultiModelExtensionBase {
   //
   /////////////////////////////////////////////////////////
   async setNodeViewerUrn (node, urn) {
-
+    if (urn === null || urn === "null") {
+      return;
+    }
+    
     try {
 
       if (urn) {
@@ -192,7 +195,10 @@ class DataManagementExtension extends MultiModelExtensionBase {
   //
   /////////////////////////////////////////////////////////
   async setNodeThumbnail (node, urn) {
-
+    if (urn === null || urn === "null") {
+      return;
+    }
+    
     try {
 
       const thumbnail =

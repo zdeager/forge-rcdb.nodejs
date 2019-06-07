@@ -109,9 +109,15 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       [item])
 
     // get asset data from db
-    const dbData =
-      await this.dbAPI.getData(
-        this.options.collection, item)
+    let dbData = null;
+    try
+    {
+      dbData =
+        await this.dbAPI.getData(
+          this.options.collection, item)
+    } catch (ex) {
+      console.log("no record");
+    }
 
     // get baseline data
     const componentProps =
@@ -125,6 +131,18 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     })
 
     //this.emit('item.selected', item)
+  }
+
+  reset () {
+    this.react.setState({
+
+      selectedGroup: null,
+      selectedIDs: null,
+      selectedID: null,
+      data: null,
+      baseline: null
+
+    });
   }
 
   /////////////////////////////////////////////////////////

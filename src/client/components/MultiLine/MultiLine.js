@@ -59,19 +59,14 @@ class MultiLine extends React.Component {
   /////////////////////////////////////////////////////////
   draw (dbData, baseline) {
 
-    if (!dbData || !baseline)
-      return;
+    var nodata = [{'date': '00', 'value': '1.69154527478'}, {'date': '01', 'value': '1.67848177301'}, {'date': '02', 'value': '1.68832613284'}, {'date': '03', 'value': '1.6653073922'}, {'date': '04', 'value': '1.69634457284'}, {'date': '05', 'value': '1.66469892089'}, {'date': '06', 'value': '1.68396528406'}, {'date': '07', 'value': '1.6832938553'}, {'date': '08', 'value': '1.69528504917'}, {'date': '09', 'value': '1.66583458976'}, {'date': '10', 'value': '1.68939008022'}, {'date': '11', 'value': '1.67731772578'}, {'date': '12', 'value': '1.684441512'}, {'date': '13', 'value': '1.68348119859'}, {'date': '14', 'value': '1.66415407073'}, {'date': '15', 'value': '1.65963579806'}, {'date': '16', 'value': '1.68038943837'}, {'date': '17', 'value': '1.68749086198'}, {'date': '18', 'value': '1.67860755893'}, {'date': '19', 'value': '1.69021896589'}, {'date': '20', 'value': '1.67340046376'}, {'date': '21', 'value': '1.68158700692'}, {'date': '22', 'value': '1.67511647824'}, {'date': '23', 'value': '1.66297975233'}]
+
+    //if (!dbData || !baseline)
+    //  return;
 
     console.log("drawing", dbData, baseline);
 
     const container = this.container
-
-    // const margin = {
-    //   bottom: 55,
-    //   right: 40,
-    //   left: 50,
-    //   top: 30
-    // }
 
     var parent_width = $(container).parent().width();
 
@@ -80,13 +75,13 @@ class MultiLine extends React.Component {
     var margin = {
         top: 15,
         right: 80,
-        bottom: 80,
+        bottom: 60,
         left: 50
       },
       width = parent_width - margin.left - margin.right,
       height = parent_height - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%Y%m%d").parse;
+    var parseDate = d3.time.format("%H").parse;
 
     var x = d3.time.scale()
       .range([0, width]);
@@ -99,9 +94,9 @@ class MultiLine extends React.Component {
     var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
-      .ticks(5)
+      //.ticks(5)
       .tickSize(6, 0)
-      .tickFormat(d3.time.format("%m/%d %H:%M"));
+      .tickFormat(d3.time.format("%H:%M"));
 
     var yAxis = d3.svg.axis()
       .scale(y)
@@ -130,15 +125,20 @@ class MultiLine extends React.Component {
 
     color.domain(["Sensor", "Baseline"]);
 
-    var sensorDataArr = dbData.sensor_data.map( data => {
-        return {
-          date: parseDate(data.date),
-          value: +data.value
+    if (dbData) {
+      var sensorDataArr = dbData.sensor_data.map( data => {
+          return {
+            date: parseDate(data.date),
+            value: +data.value
+          }
         }
-      }
-    )
+      )
+    } else {
+      sensorDataArr = null
+    }
+    
 
-    var baselineDataArr = dbData.sensor_data.map( data => {
+    var baselineDataArr = nodata.map( data => {
         return {
           date: parseDate(data.date),
           value: +baseline[0].properties[0].displayValue
@@ -146,20 +146,29 @@ class MultiLine extends React.Component {
       }
     )
 
-    var sources = [
-      {
-        "name": "Sensor",
-        "values": sensorDataArr
-      },
-      {
-        "name": "Baseline",
-        "values": baselineDataArr
-      }
-    ]
+    if (sensorDataArr) {
+      var sources = [
+        {
+          "name": "Sensor",
+          "values": sensorDataArr
+        },
+        {
+          "name": "Baseline",
+          "values": baselineDataArr
+        }
+      ]
+    } else {
+      var sources = [
+        {
+          "name": "Baseline",
+          "values": baselineDataArr
+        }
+      ]
+    }
 
     console.log(sources);
 
-    x.domain(d3.extent(sensorDataArr, function(d) {
+    x.domain(d3.extent(baselineDataArr, function(d) {
       return d.date;
     }));
 
@@ -168,13 +177,17 @@ class MultiLine extends React.Component {
         return d3.min(c.values, function(v) {
           return v.value;
         });
-      }),
+      })+.1,
       d3.max(sources, function(c) {
         return d3.max(c.values, function(v) {
           return v.value;
         });
-      })
+      })-.1
     ]);
+
+    //y.domain([
+    //  1.6, 1.8
+    //]);
 
     var legend = svg.selectAll('g')
       .data(sources)
@@ -338,7 +351,7 @@ class MultiLine extends React.Component {
             }
             
             d3.select(this).select('text')
-              .text(y.invert(pos.y).toFixed(2));
+              .text(y.invert(pos.y).toFixed(3));
               
             return "translate(" + mouse[0] + "," + pos.y +")";
           });
