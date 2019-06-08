@@ -120,9 +120,11 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     }
 
     // get baseline data
+    const group = this.react.getState().selectedGroup;
+
     const componentProps =
       await Toolkit.getBulkPropertiesAsync(
-        this.viewer.model, [item], "Velocity");
+        this.viewer.model, [item], group.propName);
 
     this.react.setState({
       selectedID: item,
@@ -226,8 +228,15 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     const {
       selectedID,
       data,
-      baseline
+      baseline,
+      selectedGroup
     } = this.react.getState()
+
+    let label = null;
+    if (selectedGroup)
+    {
+      label = selectedGroup.propName;
+    }
 
     const item = !this.react.getState().selectedID;
 
@@ -238,6 +247,7 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
           guid={selectedID}
           data={data}
           baseline={baseline}
+          label={label}
         />
       </div>
     )
@@ -304,6 +314,7 @@ class MultiLineContainer extends BaseComponent {
                 dataGuid={this.props.guid}
                 data={this.props.data}
                 baseline={this.props.baseline}
+                label={this.props.label}
               />
             </div>
           </ReflexElement>

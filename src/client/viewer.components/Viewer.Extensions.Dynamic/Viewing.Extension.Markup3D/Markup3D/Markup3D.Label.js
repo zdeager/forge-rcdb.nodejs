@@ -259,20 +259,6 @@ export default class LabelMarker extends GraphicMarker {
       <br>
       <div style="width: 150px;">
 
-        <div id="${bindSwitchId}"
-          style="margin-right:10px; float:left; padding-top:1px;">
-        </div>
-        <div style="height:30px">
-          <b>Bind to state</b>
-        </div>
-
-        <div id="${occlusionSwitchId}"
-          style="margin-right:10px; float:left; padding-top:1px;">
-        </div>
-        <div style="height:30px">
-          <b>Occlusion</b>
-        </div>
-
         <button id="${btnRemoveId}" class="btn btn-danger btn-ctrl"
           style="float: left; margin-right: 3px;"
           data-placement="bottom"
@@ -352,6 +338,9 @@ export default class LabelMarker extends GraphicMarker {
   //
   /////////////////////////////////////////////////////////////////
   updateLabel (name, value) {
+
+    name = "Asset Tag"
+    value = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 6);
 
     var snap = Snap($(`#${this.svgId}`)[0])
 
