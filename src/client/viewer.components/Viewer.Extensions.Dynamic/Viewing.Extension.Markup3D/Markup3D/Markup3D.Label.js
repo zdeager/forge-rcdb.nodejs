@@ -365,9 +365,36 @@ export default class LabelMarker extends GraphicMarker {
       stroke: '#000000'
     })
 
+    snap.attr({
+      height:100
+    })
+
+    var loc = 'Room ' + Math.floor(1000 + Math.random() * 3000) + 'ABCDEFGHIJ'.charAt(Math.floor(Math.random() * 10))
+
+    var nameLabel2 = snap.paper.text(0, nameLabel.getBBox().height*2,
+      "Location: ")
+
+    var valueLabel2 = snap.paper.text(
+      nameLabel2.getBBox().width, nameLabel.getBBox().height*2,
+      loc)
+
+    nameLabel2.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#FF0000'
+    })
+
+    valueLabel2.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#000000'
+    })
+
     this.label = snap.group(
       nameLabel,
-      valueLabel)
+      valueLabel,
+      nameLabel2,
+      valueLabel2);
 
     var width = nameLabel.getBBox().width +
       valueLabel.getBBox().width
