@@ -34,14 +34,14 @@
       .dropdown-toggle.btn {
         background: #dedede;
         padding: 1px 12px;
-        min-width: 198px;
+        min-width: 120px;
         border-radius: 0;
       }
     }
 
     .open > .dropdown-menu {
       display: block;
-      min-width: 198px;
+      min-width: 120px;
     }
   }
 }

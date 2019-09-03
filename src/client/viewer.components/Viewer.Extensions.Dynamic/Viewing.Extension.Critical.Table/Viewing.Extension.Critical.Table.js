@@ -205,87 +205,87 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
       return;
     }
 
-    // get critical assets from db
-    const dbCriticals =
-      await this.dbAPI.getItems(
-        this.options.collection);
+    // // get critical assets from db
+    // const dbCriticals =
+    //   await this.dbAPI.getItems(
+    //     this.options.collection);
 
-    // get components
-    const componentIds =
-      await Toolkit.getLeafNodes(this.viewer.activeModel);
+    // // get components
+    // const componentIds =
+    //   await Toolkit.getLeafNodes(this.viewer.activeModel);
 
-    // get critical property of each component
-    const criticalPropResults =
-      await Toolkit.getBulkPropertiesAsync(
-        this.viewer.activeModel, componentIds,
-        this.options.criticalProperties);
+    // // get critical property of each component
+    // const criticalPropResults =
+    //   await Toolkit.getBulkPropertiesAsync(
+    //     this.viewer.activeModel, componentIds,
+    //     this.options.criticalProperties);
 
-    const criticalResults =
-      criticalPropResults.map((result) => {
+    // const criticalResults =
+    //   criticalPropResults.map((result) => {
 
-        return Object.assign({},
-          result.properties[0], {
-            dbId: result.dbId
-          })
-      });
+    //     return Object.assign({},
+    //       result.properties[0], {
+    //         dbId: result.dbId
+    //       })
+    //   });
 
-    // create map of critical assets
-    componentIds.forEach((dbId) => {
+    // // create map of critical assets
+    // componentIds.forEach((dbId) => {
 
-        const criticalProp = find(criticalResults, { dbId })
+    //     const criticalProp = find(criticalResults, { dbId })
 
-        const criticalName = criticalProp ?
-          criticalProp.displayValue :
-          null
+    //     const criticalName = criticalProp ?
+    //       criticalProp.displayValue :
+    //       null
 
-        if(criticalName !== "") {
+    //     if(criticalName !== "") {
 
-          const dbCritical = find(dbCriticals, {
-            name: criticalName
-          })
+    //       const dbCritical = find(dbCriticals, {
+    //         name: criticalName
+    //       })
 
-          if (dbCritical) {
+    //       if (dbCritical) {
 
-            if (!this.criticalMap[criticalName]) {
+    //         if (!this.criticalMap[criticalName]) {
 
-              this.criticalMap[criticalName] = {
-                dbCritical: dbCritical,
-                components: []
-              }
-            }
+    //           this.criticalMap[criticalName] = {
+    //             dbCritical: dbCritical,
+    //             components: []
+    //           }
+    //         }
 
-            let item = this.criticalMap[criticalName]
+    //         let item = this.criticalMap[criticalName]
 
-            if (item) {
-              item.components.push(dbId)
-            }
-          }
-        }
-      })
+    //         if (item) {
+    //           item.components.push(dbId)
+    //         }
+    //       }
+    //     }
+    //   })
     
-    // filter out non critical assets
-    const filteredCritical =
-        dbCriticals.filter((critical) => {
+    // // filter out non critical assets
+    // const filteredCritical =
+    //     dbCriticals.filter((critical) => {
 
-         return (this.criticalMap[critical.name] != null)
-       })
+    //      return (this.criticalMap[critical.name] != null)
+    //    })
 
-    // update state
-    this.react.setState({
-        items: filteredCritical,
-        guid: this.guid()
-      })
+    // // update state
+    // this.react.setState({
+    //     items: filteredCritical,
+    //     guid: this.guid()
+    //   })
 
-    // link to viz component
-    this.viz =
-      this.viewer.getExtension(
-        'Viewing.Extension.Critical.Viz')
+    // // link to viz component
+    // this.viz =
+    //   this.viewer.getExtension(
+    //     'Viewing.Extension.Critical.Viz')
 
-    this.viz.reset();
+    // this.viz.reset();
 
-    this.viz.on(
-      'item.selected',
-      this.onSelectItem)
+    // this.viz.on(
+    //   'item.selected',
+    //   this.onSelectItem)
   }
 
   
@@ -399,8 +399,8 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
     // filter out non critical assets
     const filteredCritical =
         dbCriticals.filter((critical) => {
-
-         return (this.criticalMap[critical.name] != null)
+          return true;
+          //return (this.criticalMap[critical.name] == null)
        })
 
     // update state

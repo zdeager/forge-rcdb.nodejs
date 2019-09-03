@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////
 import React from 'react'
 import './MultiLine.scss'
-import d3 from 'd3'
+import * as d3 from "d3";
 
 class MultiLine extends React.Component {
 
@@ -99,29 +99,29 @@ class MultiLine extends React.Component {
       width = parent_width - margin.left - margin.right,
       height = parent_height - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%H").parse;
+    var parseDate = d3.timeParse("%H");
 
-    var x = d3.time.scale()
+    var x = d3.scaleTime()
       .range([0, width]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
       .range([height, 0]);
 
-    var color = d3.scale.category10();
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var xAxis = d3.svg.axis()
+    var xAxis = d3.axisBottom()
       .scale(x)
-      .orient("bottom")
+      //.orient("bottom")
       //.ticks(5)
       .tickSize(6, 0)
-      .tickFormat(d3.time.format("%H:%M"));
+      .tickFormat(d3.timeFormat("%H:%M"));
 
-    var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left");
+    var yAxis = d3.axisLeft()
+      .scale(y);
+      //.orient("left");
 
-    var line = d3.svg.line()
-      .interpolate("basis")
+    var line = d3.line()
+      .curve(d3.curveBasis)
       .x(function(d) {
         return x(d.date);
       })

@@ -14,6 +14,7 @@ import {findDOMNode} from 'react-dom'
 import Toolkit from 'Viewer.Toolkit'
 import sortBy from 'lodash/sortBy'
 import MultiLine from 'MultiLine'
+import BarCost from 'BarCost'
 import React from 'react'
 import d3 from 'd3'
 import DropdownButton from 'react-bootstrap/lib/DropdownButton'
@@ -68,6 +69,7 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       selectedGroup: null,
       selectedIDs: null,
       selectedID: null,
+      selectedViz: null,
       data: null,
       baseline: null
 
@@ -135,17 +137,37 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     //this.emit('item.selected', item)
   }
 
+  /////////////////////////////////////////////////////////
+  //
+  //
+  /////////////////////////////////////////////////////////
+  async onVizSelected (viz) {
+
+    console.log('selected viz', viz);
+
+    this.react.setState({
+      selectedViz: viz
+    })
+
+  }
+
+  /////////////////////////////////////////////////////////
+  //
+  //
+  /////////////////////////////////////////////////////////
   reset () {
     this.react.setState({
 
       selectedGroup: null,
       selectedIDs: null,
       selectedID: null,
+      selectedViz: null,
       data: null,
       baseline: null
 
     });
   }
+
 
   /////////////////////////////////////////////////////////
   //
@@ -159,6 +181,7 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       selectedIDs: items,
       selectedGroup: group,
       selectedID: null,
+      selectedViz: null,
       data: null,
       baseline: null
     })
@@ -171,6 +194,8 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
   renderTitle () {
 
     const group = this.react.getState().selectedGroup;
+
+    // asset dropdown
 
     const items = this.react.getState().selectedIDs;
 
@@ -198,7 +223,37 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
     } else if (items) {
       title = group.name;
     } else {
-      title = "Select Asset Group";
+      title = "Asset";
+    }
+
+
+    // viz dropdown
+
+    const vizs = ["Sensor", "Cost"];
+
+    let menu2Items = null;
+
+    if (vizs) {
+      menu2Items = vizs.map((viz, idx) => {
+        return (
+          <MenuItem eventKey={idx} key={idx} onClick={() => {
+
+            this.onVizSelected(viz);
+          }}>
+            { viz }
+          </MenuItem>
+        )
+      })
+    }
+
+    const item2 = this.react.getState().selectedViz;
+
+    let title2 = null;
+
+    if (item2) {
+      title2 = item2;
+    } else {
+      title2 = "Viz";
     }
 
     return (
@@ -211,7 +266,15 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
             title={title}
             key="extra-dropdown"
             id="extra-dropdown">
-           { menuItems }
+            { menuItems }
+          </DropdownButton>
+        </div>
+        <div className="drop" style={{"paddingLeft": "10px"}}>
+          <DropdownButton
+            title={title2}
+            key="extra-dropdown2"
+            id="extra-dropdown2">
+            { menu2Items }
           </DropdownButton>
         </div>
       </div>
@@ -227,6 +290,7 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
 
     const {
       selectedID,
+      selectedViz,
       data,
       baseline,
       selectedGroup
@@ -238,19 +302,37 @@ class CriticalAssetVizExtension extends MultiModelExtensionBase {
       label = selectedGroup.propName;
     }
 
-    const item = !this.react.getState().selectedID;
+    //const item = !this.react.getState().selectedID;
 
-    return (
-      <div className="content">
-        <Loader show={item}/>
-        <MultiLineContainer
-          guid={selectedID}
-          data={data}
-          baseline={baseline}
-          label={label}
-        />
-      </div>
-    )
+    //const viz = !this.react.getState().selectedViz;
+
+    if (selectedViz === "Sensor") {
+      return (
+        <div className="content">
+          <MultiLineContainer
+            guid={selectedID}
+            data={data}
+            baseline={baseline}
+            label={label}
+          />
+        </div>
+      )
+    } else if (selectedID && selectedViz === "Cost") {
+      return (
+        <div className="content">
+          <BarCostContainer
+            guid={selectedID}
+            data={data}
+          />
+        </div>
+      )
+    } else {
+      return (
+        <div className="content">
+          <Loader show={true}/>
+        </div>
+      )
+    }
   }
 
   /////////////////////////////////////////////////////////
@@ -315,6 +397,58 @@ class MultiLineContainer extends BaseComponent {
                 data={this.props.data}
                 baseline={this.props.baseline}
                 label={this.props.label}
+              />
+            </div>
+          </ReflexElement>
+        }
+      </ReflexContainer>
+    )
+  }
+}
+
+class BarCostContainer extends BaseComponent {
+
+  /////////////////////////////////////////////////////////
+  //
+  //
+  /////////////////////////////////////////////////////////
+  constructor () {
+
+    super ()
+
+  }
+
+  /////////////////////////////////////////////////////////
+  //
+  //
+  /////////////////////////////////////////////////////////
+  componentWillReceiveProps (props) {
+
+    const domElement = findDOMNode(this)
+
+    const height = domElement.offsetHeight
+
+  }
+
+
+  /////////////////////////////////////////////////////////
+  //
+  //
+  /////////////////////////////////////////////////////////
+  render() {
+
+    return (
+      <ReflexContainer>
+        {
+          <ReflexElement>
+            <div style={{
+              background: '#fdfdfd',
+              paddingTop:'10px',
+              height: '100%'
+              }}>
+              <BarCost
+                dataGuid={this.props.guid}
+                data={this.props.data}
               />
             </div>
           </ReflexElement>
