@@ -1,5 +1,20 @@
 barcost {
   font: 10px sans-serif;
+  shape-rendering: crispEdges;
 }
 
 .bar { fill: steelblue; }
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+}
+
+path.domain {
+  stroke: none;
+}
+
+.y .tick line {
+  stroke: #ddd;
+}
