@@ -1,29 +1,18 @@
 import ContentEditable from 'react-contenteditable'
 import BaseComponent from 'BaseComponent'
-import ServiceManager from 'SvcManager'
+import { ServiceContext } from 'ServiceContext'
 import Dropzone from 'react-dropzone'
 import PropTypes from 'prop-types'
 import './ModelUploader.scss'
 import React from 'react'
 
 export default class ModelUploader extends BaseComponent {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   constructor (props) {
-
-    super (props)
-
-    this.socketSvc = ServiceManager.getService(
-      'SocketSvc')
-
-    this.dialogSvc = ServiceManager.getService(
-      'DialogSvc')
-
-    this.modelSvc = ServiceManager.getService(
-      'ModelSvc')
+    super(props)
 
     this.onDrop = this.onDrop.bind(this)
 
@@ -32,12 +21,11 @@ export default class ModelUploader extends BaseComponent {
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   guid (format = 'xxxxxxxxxx') {
-
     var d = new Date().getTime()
 
     var guid = format.replace(
@@ -51,38 +39,33 @@ export default class ModelUploader extends BaseComponent {
     return guid
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   onKeyDown (e) {
-
     if (e.keyCode === 13) {
-
       e.stopPropagation()
       e.preventDefault()
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   onRootFilenameChanged (e) {
-
     this.assignState({
       rootFilename: e.target.value
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   isComposite (file) {
-
-    return new Promise ((resolve) => {
-
+    return new Promise((resolve) => {
       const filename = file.name
 
       const rootFilename =
@@ -90,9 +73,7 @@ export default class ModelUploader extends BaseComponent {
           0, filename.length - 4)
 
       if (filename.endsWith('.zip')) {
-
         const onClose = (result) => {
-
           this.dialogSvc.off('dialog.close', onClose)
 
           return (result === 'OK')
@@ -113,38 +94,34 @@ export default class ModelUploader extends BaseComponent {
           captionCancel: 'NO',
           captionOK: 'Yes',
           content:
-            <div>
-              <p>
+  <div>
+    <p>
                 Are you uploading a composite model?
-              </p>
-              <ContentEditable
-                data-placeholder={`Specify root filename: ${rootFilename}`}
-                onChange={(e) => this.onRootFilenameChanged(e)}
-                onKeyDown={(e) => this.onKeyDown(e)}
-                html={this.state.rootFilename}
-                className="root-filename"
-              />
-            </div>,
+    </p>
+    <ContentEditable
+      data-placeholder={`Specify root filename: ${rootFilename}`}
+      onChange={(e) => this.onRootFilenameChanged(e)}
+      onKeyDown={(e) => this.onKeyDown(e)}
+      html={this.state.rootFilename}
+      className='root-filename'
+    />
+  </div>,
           open: true
         })
-
       } else {
-
         resolve(false)
       }
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   async onDrop (files) {
-
     const validUpload = await this.props.onFileDrop(files)
 
     if (validUpload) {
-
       const composite = await this.isComposite(files[0])
 
       const uploadId = this.guid()
@@ -152,7 +129,6 @@ export default class ModelUploader extends BaseComponent {
       const file = files[0]
 
       if (this.props.onInitUpload) {
-
         this.props.onInitUpload({
           uploadId,
           file
@@ -164,17 +140,15 @@ export default class ModelUploader extends BaseComponent {
       const data = Object.assign({
         socketId,
         uploadId
-      }, !!composite
+      }, composite
         ? {
-            rootFilename: composite
-          }
+          rootFilename: composite
+        }
         : null)
 
       const options = {
         progress: (percent) => {
-
           if (this.props.onProgress) {
-
             this.props.onProgress({
               uploadId,
               percent,
@@ -191,25 +165,22 @@ export default class ModelUploader extends BaseComponent {
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   renderContent () {
-
     const { user } = this.props
 
     if (user) {
-
       if (user.allowedUploads !== undefined &&
           user.allowedUploads <= 0) {
-
         return (
-          <div className="limit">
+          <div className='limit'>
             <p>
               You have reached your maximum active models quota :(
             </p>
-            <hr/>
+            <hr />
             <p>
               Wait for your current models to expire
               before being able to upload again ...
@@ -219,16 +190,18 @@ export default class ModelUploader extends BaseComponent {
       }
 
       return (
-        <Dropzone className="content"
+        <Dropzone
+          className='content'
           onDrop={this.onDrop}
-          multiple={false} >
+          multiple={false}
+        >
           <p>
             Drop a file here or click to browse ...
           </p>
-          <hr/>
+          <hr />
           <p>
             Your model will be available for
-            <br/>
+            <br />
             <u>30 days</u>
           </p>
         </Dropzone>
@@ -236,11 +209,11 @@ export default class ModelUploader extends BaseComponent {
     }
 
     return (
-      <div className="login">
+      <div className='login'>
         <p>
           In order to upload models ...
         </p>
-        <hr/>
+        <hr />
         <p>
           You must be &nbsp;
           <u onClick={this.props.onLogIn}>
@@ -251,21 +224,20 @@ export default class ModelUploader extends BaseComponent {
     )
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   render () {
-
-    return(
-      <div className="model-uploader">
-        <div className="title">
-          <span className="fa fa-cloud-upload"/>
+    return (
+      <div className='model-uploader'>
+        <div className='title'>
+          <span className='fa fa-cloud-upload' />
           <label>
             Upload your Model
           </label>
         </div>
-        { this.renderContent() }
+        {this.renderContent()}
       </div>
     )
   }

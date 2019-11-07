@@ -57,22 +57,22 @@ class Trianglify extends Component {
   }
 
   generatePattern ({ output, ...props }) {
-  const pattern = trianglify(props)
-  const outputMethod = pattern[output]
+    const pattern = trianglify(props)
+    const outputMethod = pattern[output]
 
-  this[this.outputTypes(output).method](outputMethod)
-}
+    this[this.outputTypes(output).method](outputMethod)
+  }
 
-render () {
-  const { output, width, height } = this.props
+  render () {
+    const { output, width, height } = this.props
 
-  return this.outputTypes(output).component({
-    height,
-    width,
-    pattern: this.state.pattern,
-    canvasRef: (node) => (this.trianglify = node)
-  })
-}
+    return this.outputTypes(output).component({
+      height,
+      width,
+      pattern: this.state.pattern,
+      canvasRef: (node) => (this.trianglify = node)
+    })
+  }
 }
 
 const getProps = extractProps(PropTypes)

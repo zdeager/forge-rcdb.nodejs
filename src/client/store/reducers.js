@@ -1,22 +1,22 @@
-import { reducer as notificationsReducer } from 'reapop'
 import { combineReducers } from 'redux'
-
-//default reducers
+import { connectRouter } from 'connected-react-router'
+import { history } from 'BrowserContext'
+// default reducers
 import locationReducer from './location'
 import appReducer from './app'
 
-export const makeRootReducer = (asyncReducers) => {
+export const makeRootReducer = (history, asyncReducers = {}) => {
   return combineReducers({
-    notifications: notificationsReducer(),
+    router: connectRouter(history),
     location: locationReducer,
     app: appReducer,
     ...asyncReducers
   })
 }
 
-export const injectReducer = (store, { key, reducer }) => {
+export const injectReducer = (store, { key, reducer }, history = history) => {
   store.asyncReducers[key] = reducer
-  store.replaceReducer(makeRootReducer(store.asyncReducers))
+  store.replaceReducer(makeRootReducer(history, store.asyncReducers))
 }
 
 export default makeRootReducer

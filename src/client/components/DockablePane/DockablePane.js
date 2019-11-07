@@ -21,22 +21,20 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var e, b, x, y;
+var e, b, x, y
 
 class DockablePane {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   constructor (container) {
-
     this.FULLSCREEN_MARGINS = -10
     this.MARGINS = 4
 
     // Minimum resizable area
-    this.minWidth = 60;
-    this.minHeight = 40;
+    this.minWidth = 60
+    this.minHeight = 40
 
     // End of what's configurable.
     this.clicked = null
@@ -72,76 +70,68 @@ class DockablePane {
     document.addEventListener('touchend', onTouchEnd)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  setBounds(element, x, y, w, h) {
-
-    element.style.left   = x + 'px'
-    element.style.top    = y + 'px'
-    element.style.width  = w + 'px'
+  /// //////////////////////////////////////////////////////
+  setBounds (element, x, y, w, h) {
+    element.style.left = x + 'px'
+    element.style.top = y + 'px'
+    element.style.width = w + 'px'
     element.style.height = h + 'px'
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  hintHide() {
-
+  /// //////////////////////////////////////////////////////
+  hintHide () {
     this.setBounds(this.ghostpane, b.left, b.top, b.width, b.height)
-    this.ghostpane.style.opacity = 0;
+    this.ghostpane.style.opacity = 0
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onTouchDown(e) {
-
+  /// //////////////////////////////////////////////////////
+  onTouchDown (e) {
     this.onDown(e.touches[0])
     e.preventDefault()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onTouchMove(e) {
-
+  /// //////////////////////////////////////////////////////
+  onTouchMove (e) {
     this.onMove(e.touches[0])
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onTouchEnd(e) {
-
+  /// //////////////////////////////////////////////////////
+  onTouchEnd (e) {
     if (e.touches.length === 0) {
-
       this.onUp(e.changedTouches[0])
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onMouseDown(e) {
-
+  /// //////////////////////////////////////////////////////
+  onMouseDown (e) {
     this.onDown(e)
     e.preventDefault()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   onDown (event) {
-
-    this.calc (event)
+    this.calc(event)
 
     const isResizing = this.onRightEdge ||
       this.onBottomEdge ||
@@ -164,21 +154,19 @@ class DockablePane {
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  canMove() {
-
-    return x > 0 && x < b.width && y > 0 && y < b.height && y < 30;
+  /// //////////////////////////////////////////////////////
+  canMove () {
+    return x > 0 && x < b.width && y > 0 && y < b.height && y < 30
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   calc (event) {
-
     b = this.pane.getBoundingClientRect()
 
     x = event.clientX - b.left
@@ -193,12 +181,11 @@ class DockablePane {
     this.bottomScreenEdge = window.innerHeight - this.MARGINS
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onMove(ee) {
-
+  /// //////////////////////////////////////////////////////
+  onMove (ee) {
     this.calc(ee)
 
     e = ee
@@ -206,58 +193,45 @@ class DockablePane {
     this.update()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  onUp(e) {
-
+  /// //////////////////////////////////////////////////////
+  onUp (e) {
     this.calc(e)
 
     if (this.clicked && this.clicked.isMoving) {
-
       // Snap
       var snapped = {
         width: b.width,
         height: b.height
-      };
+      }
 
       if (b.top < this.FULLSCREEN_MARGINS ||
         b.left < this.FULLSCREEN_MARGINS ||
         b.right > window.innerWidth - this.FULLSCREEN_MARGINS ||
         b.bottom > window.innerHeight - this.FULLSCREEN_MARGINS) {
-
         // hintFull();
-        this.setBounds(this.pane, 0, 0, window.innerWidth, window.innerHeight);
-        this.preSnapped = snapped;
-
+        this.setBounds(this.pane, 0, 0, window.innerWidth, window.innerHeight)
+        this.preSnapped = snapped
       } else if (b.top < this.MARGINS) {
-
         // hintTop();
-        this.setBounds(this.pane, 0, 0, window.innerWidth, window.innerHeight / 2);
-        this.preSnapped = snapped;
-
+        this.setBounds(this.pane, 0, 0, window.innerWidth, window.innerHeight / 2)
+        this.preSnapped = snapped
       } else if (b.left < this.MARGINS) {
-
         // hintLeft();
-        this.setBounds(this.pane, 0, 0, window.innerWidth / 2, window.innerHeight);
-        this.preSnapped = snapped;
-
+        this.setBounds(this.pane, 0, 0, window.innerWidth / 2, window.innerHeight)
+        this.preSnapped = snapped
       } else if (b.right > this.rightScreenEdge) {
-
         // hintRight();
-        this.setBounds(this.pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-        this.preSnapped = snapped;
-
+        this.setBounds(this.pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight)
+        this.preSnapped = snapped
       } else if (b.bottom > this.bottomScreenEdge) {
-
         // hintBottom();
-        this.setBounds(this.pane, 0, window.innerHeight / 2, window.innerWidth, window.innerWidth / 2);
-        this.preSnapped = snapped;
-
+        this.setBounds(this.pane, 0, window.innerHeight / 2, window.innerWidth, window.innerWidth / 2)
+        this.preSnapped = snapped
       } else {
-
-        this.preSnapped = null;
+        this.preSnapped = null
       }
 
       this.hintHide()
@@ -266,42 +240,37 @@ class DockablePane {
     this.clicked = null
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  update() {
-
+  /// //////////////////////////////////////////////////////
+  update () {
     if (this.clicked && this.clicked.isResizing) {
-
       if (this.clicked.this.onRightEdge) {
-        this.pane.style.width = Math.max(x, this.minWidth) + 'px';
+        this.pane.style.width = Math.max(x, this.minWidth) + 'px'
       }
 
       if (this.clicked.this.onBottomEdge) {
-        this.pane.style.height = Math.max(y, this.minHeight) + 'px';
+        this.pane.style.height = Math.max(y, this.minHeight) + 'px'
       }
 
       if (this.clicked.this.onLeftEdge) {
-
         var currentWidth =
-          Math.max(this.clicked.cx - e.clientX  + this.clicked.w, this.minWidth);
+          Math.max(this.clicked.cx - e.clientX + this.clicked.w, this.minWidth)
 
         if (currentWidth > this.minWidth) {
-          this.pane.style.width = currentWidth + 'px';
-          this.pane.style.left = e.clientX + 'px';
+          this.pane.style.width = currentWidth + 'px'
+          this.pane.style.left = e.clientX + 'px'
         }
       }
 
       if (this.clicked.this.onTopEdge) {
-
         var currentHeight =
-          Math.max(this.clicked.cy - e.clientY  + this.clicked.h, this.minHeight);
+          Math.max(this.clicked.cy - e.clientY + this.clicked.h, this.minHeight)
 
         if (currentHeight > this.minHeight) {
-
-          this.pane.style.height = currentHeight + 'px';
-          this.pane.style.top = e.clientY + 'px';
+          this.pane.style.height = currentHeight + 'px'
+          this.pane.style.top = e.clientY + 'px'
         }
       }
 
@@ -311,45 +280,35 @@ class DockablePane {
     }
 
     if (this.clicked && this.clicked.isMoving) {
-
       if (b.top < this.FULLSCREEN_MARGINS ||
         b.left < this.FULLSCREEN_MARGINS ||
         b.right > window.innerWidth - this.FULLSCREEN_MARGINS ||
         b.bottom > window.innerHeight - this.FULLSCREEN_MARGINS) {
-
         this.setBounds(this.ghostpane, 0, 0,
           window.innerWidth,
           window.innerHeight)
 
         this.ghostpane.style.opacity = 0.2
-
       } else if (b.top < this.MARGINS) {
-
         // hintTop();
         this.setBounds(this.ghostpane, 0, 0,
           window.innerWidth, window.innerHeight / 2)
 
         this.ghostpane.style.opacity = 0.2
-
       } else if (b.left < this.MARGINS) {
-
         // hintLeft();
         this.setBounds(this.ghostpane, 0, 0,
           window.innerWidth / 2, window.innerHeight)
 
         this.ghostpane.style.opacity = 0.2
-
       } else if (b.right > this.rightScreenEdge) {
-
         // hintRight();
         this.setBounds(this.ghostpane,
           window.innerWidth / 2, 0, window.innerWidth / 2,
           window.innerHeight)
 
         this.ghostpane.style.opacity = 0.2
-
       } else if (b.bottom > this.bottomScreenEdge) {
-
         // hintBottom();
         this.setBounds(this.ghostpane, 0,
           window.innerHeight / 2,
@@ -357,14 +316,11 @@ class DockablePane {
           window.innerWidth / 2)
 
         this.ghostpane.style.opacity = 0.2
-
       } else {
-
         this.hintHide()
       }
 
       if (this.preSnapped) {
-
         this.setBounds(this.pane,
           e.clientX - this.preSnapped.width / 2,
           e.clientY - Math.min(this.clicked.y, this.preSnapped.height),
@@ -375,8 +331,8 @@ class DockablePane {
       }
 
       // moving
-      this.pane.style.top =  (e.clientY - this.clicked.y) + 'px';
-      this.pane.style.left = (e.clientX - this.clicked.x) + 'px';
+      this.pane.style.top = (e.clientY - this.clicked.y) + 'px'
+      this.pane.style.left = (e.clientX - this.clicked.x) + 'px'
 
       return
     }
@@ -386,32 +342,20 @@ class DockablePane {
     // style cursor
     if (this.onRightEdge && this.onBottomEdge ||
       this.onLeftEdge && this.onTopEdge) {
-
       this.pane.style.cursor = 'nwse-resize'
-
     } else if (this.onRightEdge && this.onTopEdge ||
       this.onBottomEdge && this.onLeftEdge) {
-
       this.pane.style.cursor = 'nesw-resize'
-
     } else if (this.onRightEdge || this.onLeftEdge) {
-
       this.pane.style.cursor = 'ew-resize'
-
     } else if (this.onBottomEdge || this.onTopEdge) {
-
       this.pane.style.cursor = 'ns-resize'
-
     } else if (this.canMove()) {
-
       this.pane.style.cursor = 'move'
-
     } else {
-
       this.pane.style.cursor = 'default'
     }
   }
 }
 
 export default DockablePane
-

@@ -1,8 +1,8 @@
 import React from 'react'
+import { ServiceContext } from 'ServiceContext'
 
 class BaseComponent extends React.Component {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
   }
 
@@ -15,5 +15,7 @@ class BaseComponent extends React.Component {
     })
   }
 }
+
+BaseComponent.contextType = ServiceContext
 
 export default BaseComponent

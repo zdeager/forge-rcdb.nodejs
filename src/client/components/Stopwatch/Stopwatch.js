@@ -1,27 +1,23 @@
-///////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////
 // A stopwatch
 //
-///////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////
 export default class Stopwatch {
-
-  constructor(){
-
-   this._lastTime = performance.now();
+  constructor () {
+    this._lastTime = performance.now()
   }
 
-  start(){
-
-    this._lastTime = performance.now();
+  start () {
+    this._lastTime = performance.now()
   }
 
-  getElapsedMs(){
+  getElapsedMs () {
+    var time = performance.now()
 
-    var time = performance.now();
+    var elapsedMs = time - this._lastTime
 
-    var elapsedMs = time - this._lastTime;
+    this._lastTime = time
 
-    this._lastTime = time;
-
-    return elapsedMs;
+    return elapsedMs
   }
 }

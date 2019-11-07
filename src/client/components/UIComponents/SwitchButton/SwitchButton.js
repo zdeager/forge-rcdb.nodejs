@@ -1,86 +1,80 @@
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 // switch button
 //
-/////////////////////////////////////////////////////////////
-import EventsEmitter from 'EventsEmitter';
+/// //////////////////////////////////////////////////////////
+import EventsEmitter from 'EventsEmitter'
 
 export default class SwitchButton extends EventsEmitter {
-
-  ///////////////////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////////////////
-  constructor(container, checked = true){
+  /// ////////////////////////////////////////////////////////////////
+  constructor (container, checked = true) {
+    super()
 
-    super();
+    var _this = this
 
-    var _this = this;
+    var labelId = guid()
 
-    var labelId = guid();
-
-    this._inputId = guid();
+    this._inputId = guid()
 
     var html = `
         <p class="onoffswitch">
           <input id="${this._inputId}" type="checkbox" name="onoffswitch"
-            class="onoffswitch-checkbox" ${checked?"checked":""}>
+            class="onoffswitch-checkbox" ${checked ? 'checked' : ''}>
           <label id="${labelId}" class="onoffswitch-label">
             <span class="onoffswitch-inner"></span>
             <span class="onoffswitch-switch"></span>
           </label>
         </p>
-      `;
+      `
 
-    $(container).append(html);
+    $(container).append(html)
 
-    $('#' + labelId).click((e)=>{
+    $('#' + labelId).click((e) => {
+      var $input = $('#' + this._inputId)[0]
 
-      var $input = $('#' + this._inputId)[0];
+      $input.checked = !$input.checked
 
-      $input.checked = !$input.checked;
-
-      _this.emit('checked', $input.checked);
-    });
+      _this.emit('checked', $input.checked)
+    })
   }
 
-  ///////////////////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////////////////
-  checked() {
-
-    return  $('#' + this._inputId)[0].checked;
+  /// ////////////////////////////////////////////////////////////////
+  checked () {
+    return $('#' + this._inputId)[0].checked
   }
 
-  ///////////////////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////////////////
-  setChecked(checked) {
-
+  /// ////////////////////////////////////////////////////////////////
+  setChecked (checked) {
     $('#' + this._inputId).prop(
-      'checked', checked);
+      'checked', checked)
 
-    this.emit('checked', checked);
+    this.emit('checked', checked)
   }
 }
 
-function guid() {
-
-  var d = new Date().getTime();
+function guid () {
+  var d = new Date().getTime()
 
   var guid = 'xxxx-xxxx-xxxx-xxxx'.replace(
     /[xy]/g,
     function (c) {
-      var r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
-    });
+      var r = (d + Math.random() * 16) % 16 | 0
+      d = Math.floor(d / 16)
+      return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16)
+    })
 
-  return guid;
+  return guid
 }
 
-//https://proto.io/freebies/onoff/
+// https://proto.io/freebies/onoff/
 var css = `
 
   .onoffswitch {
@@ -142,6 +136,6 @@ var css = `
   .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: -1px;
   }
-`;
+`
 
-$('<style type="text/css">' + css + '</style>').appendTo('head');
+$('<style type="text/css">' + css + '</style>').appendTo('head')

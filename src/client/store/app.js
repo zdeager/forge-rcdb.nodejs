@@ -1,5 +1,5 @@
-import {client as config} from 'c0nfig'
-import ServiceManager from 'SvcManager'
+import { client as config } from 'c0nfig'
+import { Services } from 'ServiceContext'
 import merge from 'lodash/merge'
 
 // ------------------------------------
@@ -18,56 +18,50 @@ export const SET_USER = 'SET_USER'
 // ------------------------------------
 export function databaseChange (database) {
   return {
-    type    : DATABASE_CHANGE,
-    payload : database
+    type: DATABASE_CHANGE,
+    payload: database
   }
 }
 
 export function layoutChange (layoutType) {
   return {
-    type    : LAYOUT_CHANGE,
-    payload : layoutType
+    type: LAYOUT_CHANGE,
+    payload: layoutType
   }
 }
 
 export function themeChange (theme) {
   return {
-    type    : THEME_CHANGE,
-    payload : theme
+    type: THEME_CHANGE,
+    payload: theme
   }
 }
 
 export function saveAppState () {
   return {
-    type    : SAVE_APP_STATE
+    type: SAVE_APP_STATE
   }
 }
 
 export function setNavbarState (state) {
   return {
-    type    : SET_NAVBAR_STATE,
-    payload : state
+    type: SET_NAVBAR_STATE,
+    payload: state
   }
 }
 
 export function setViewerEnv (env) {
   return {
-    type    : SET_VIEWER_ENV,
-    payload : env
+    type: SET_VIEWER_ENV,
+    payload: env
   }
 }
 
-const getUserWithStats = async(user) => {
-
-  const userSvc =
-    ServiceManager.getService(
-      'UserSvc')
-
+const getUserWithStats = async (user) => {
   if (user.uploadLimit !== undefined) {
-
     const activeModels =
-      await userSvc.getActiveModels(
-      'gallery')
+      await Services.userSvc.getActiveModels(
+        'gallery')
 
     const allowedUploads =
       user.uploadLimit - activeModels.length
@@ -81,23 +75,20 @@ const getUserWithStats = async(user) => {
 }
 
 export function setUser (user) {
-
   if (!user) {
     return {
-      type    : SET_USER,
-      payload : null
+      type: SET_USER,
+      payload: null
     }
   }
 
   return (dispatch) => {
-
-   getUserWithStats(user).then((userWithStats) => {
-
-     dispatch({
-       type: SET_USER,
-       payload: userWithStats
-     })
-   })
+    getUserWithStats(user).then((userWithStats) => {
+      dispatch({
+        type: SET_USER,
+        payload: userWithStats
+      })
+    })
   }
 }
 
@@ -106,8 +97,7 @@ export function setUser (user) {
 // ------------------------------------
 const ACTION_HANDLERS = {
 
-  [DATABASE_CHANGE] : (state, action) => {
-
+  [DATABASE_CHANGE]: (state, action) => {
     const storage = Object.assign({},
       state.storage, {
         database: action.payload
@@ -118,8 +108,7 @@ const ACTION_HANDLERS = {
     })
   },
 
-  [LAYOUT_CHANGE] : (state, action) => {
-
+  [LAYOUT_CHANGE]: (state, action) => {
     const storage = Object.assign({},
       state.storage, {
         layoutType: action.payload
@@ -130,8 +119,7 @@ const ACTION_HANDLERS = {
     })
   },
 
-  [THEME_CHANGE] : (state, action) => {
-
+  [THEME_CHANGE]: (state, action) => {
     const storage = Object.assign({},
       state.storage, {
         theme: action.payload
@@ -142,18 +130,13 @@ const ACTION_HANDLERS = {
     })
   },
 
-  [SAVE_APP_STATE] : (state, action) => {
-
-    const storageSvc = ServiceManager.getService(
-      'StorageSvc')
-
-    storageSvc.save('AppState.storage', state.storage)
+  [SAVE_APP_STATE]: (state, action) => {
+    Services.storageSvc.save('AppState.storage', state.storage)
 
     return state
   },
 
-  [SET_NAVBAR_STATE] : (state, action) => {
-
+  [SET_NAVBAR_STATE]: (state, action) => {
     const navbar = merge({},
       state.navbar,
       action.payload)
@@ -163,15 +146,13 @@ const ACTION_HANDLERS = {
     })
   },
 
-  [SET_VIEWER_ENV] : (state, action) => {
-
+  [SET_VIEWER_ENV]: (state, action) => {
     return Object.assign({}, state, {
       viewerEnv: action.payload
     })
   },
 
-  [SET_USER] : (state, action) => {
-
+  [SET_USER]: (state, action) => {
     return Object.assign({}, state, {
       user: action.payload
     })
@@ -182,10 +163,6 @@ const ACTION_HANDLERS = {
 // get storage
 // ------------------------------------
 const getStorage = () => {
-
-  const storageSvc = ServiceManager.getService(
-    'StorageSvc')
-
   const defaultAppState = {
     layoutType: 'flexLayoutRight',
     theme: {
@@ -200,7 +177,7 @@ const getStorage = () => {
     }
   }
 
-  const storage = storageSvc.load(
+  const storage = Services.storageSvc.load(
     'AppState.storage',
     defaultAppState)
 
@@ -211,11 +188,10 @@ const getStorage = () => {
 // Initial App State
 // ------------------------------------
 const createInitialState = () => {
-
   const defaultState = {
     navbar: {
       visible: true,
-      links:{
+      links: {
         settings: true,
         gallery: true,
         login: true,
@@ -242,7 +218,6 @@ const createInitialState = () => {
 
 export default function reducer (
   state = createInitialState(), action) {
-
   const handler = ACTION_HANDLERS[action.type]
 
   return handler

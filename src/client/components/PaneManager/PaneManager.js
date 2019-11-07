@@ -143,7 +143,8 @@ class PaneManager extends React.Component {
           minSize: child.props.minSize || 39,
           onLockSize: this.onLockSize,
           id: childId || this.guid(),
-          title: child.props.title
+          title: child.props.title,
+          myDiv:null
         }, childState)
 
         const showSplitter = (idx < children.length - 1)

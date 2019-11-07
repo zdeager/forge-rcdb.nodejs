@@ -2,35 +2,32 @@
 import BaseSvc from './BaseSvc'
 import request from 'request'
 
-
 export default class ARVRToolkitSvc extends BaseSvc {
-
-  static BASE_URL = "https://developer-api.autodesk.io"
-
-  /////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////
-  constructor (config) {
-
-    super (config)
+  static get BASE_URL () {
+    return 'https://developer-api.autodesk.io'
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  name () {
+  /// //////////////////////////////////////////////////////
+  constructor (config) {
+    super(config)
+  }
 
+  /// //////////////////////////////////////////////////////
+  //
+  //
+  /// //////////////////////////////////////////////////////
+  name () {
     return 'AR-VR-ToolkitSvc'
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // GET /arkit/v1/health
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getHealth () {
-
     const url = `${ARVRToolkitSvc.BASE_URL}/arkit/v1/health`
 
     return this.requestAsync({
@@ -38,7 +35,7 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // PUT /arkit/v1/{urn}/scenes/{scene_id}
   //
   // sceneDef: {
@@ -48,10 +45,9 @@ export default class ARVRToolkitSvc extends BaseSvc {
   //    objectId: 59
   //  }
   // }
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   createScene (token, urn, sceneId, sceneDef, opts = {}) {
-
-    const  headers = {
+    const headers = {
       'x-ads-region': opts.region || 'US',
       Authorization: 'Bearer ' + token
     }
@@ -70,12 +66,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // GET /arkit/v1/{urn}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getScene (token, urn, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/arkit/v1/` +
       `${urn}/scenes/${sceneId}`
@@ -87,12 +82,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // DELETE /arkit/v1/{urn}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   deleteScene (token, urn, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/arkit/v1/` +
       `${urn}/scenes/${sceneId}`
@@ -105,17 +99,16 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // PUT /data/v1/projects/{project_id}/versions/
   //     {version_id}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   createScene3Legged (
     token,
     projectId, versionId,
     sceneId, sceneDef, opts = {}) {
-
-    const  headers = {
+    const headers = {
       'x-ads-region': opts.region || 'US',
       Authorization: 'Bearer ' + token
     }
@@ -135,14 +128,13 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // GET /data/v1/projects/{project_id}/versions/
   //     {version_id}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getScene3Legged (
     token, projectId, versionId, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/data/v1/` +
       `projects/${projectId}/` +
@@ -156,13 +148,12 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // DELETE /data/v1/projects/{project_id}/versions/
   //        {version_id}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   deleteScene3Legged (token, projectId, versionId, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/data/v1/` +
       `projects/${projectId}/` +
@@ -177,12 +168,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // POST /modelderivative/v2/arkit/job
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   processScene (token, urn, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/job`
 
@@ -191,8 +181,8 @@ export default class ARVRToolkitSvc extends BaseSvc {
         urn
       },
       output: {
-        formats: [ {
-          type: "arkit",
+        formats: [{
+          type: 'arkit',
           scene: sceneId
         }]
       }
@@ -207,12 +197,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // GET /modelderivative/v2/arkit/{urn}/manifest
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getManifest (token, urn) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/manifest`
@@ -224,12 +213,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   // GET /modelderivative/v2/arkit/{urn}/scenes/{scene_id}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getInstanceTree (token, urn, sceneId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/scenes/${sceneId}`
@@ -241,12 +229,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/mesh/{dbId}/{fragId}
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/mesh/{dbId}/{fragId}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getMeshFragment (token, urn, dbId, fragId) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/mesh/${dbId}/${fragId}`
@@ -259,15 +246,14 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/scenes/{scene_id}
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/scenes/{scene_id}
   //    /mesh/{dbId}/{fragId}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getSceneMeshFragment (
     token, urn, sceneId, dbId, fragId, opts = {}) {
-
-    const  headers = {
+    const headers = {
       Authorization: 'Bearer ' + token,
       'x-ads-device': opts.device
     }
@@ -283,13 +269,12 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/material/{matId}/{mat}
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/material/{matId}/{mat}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getMeshFragmentMaterial (
     token, urn, matId, material) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/material/${matId}/${material}`
@@ -301,12 +286,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/texture/{tex}
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/texture/{tex}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getMeshFragmentTexture (token, urn, texture) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/texture/${texture}`
@@ -318,24 +302,22 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   arrayToParam (dbIds) {
-
     return dbIds.reduce((res, dbId) => {
       return res + (res.length ? ',' : '') + dbId
     }, '')
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/properties/{dbIds}
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/properties/{dbIds}
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getObjectProperties (token, urn, dbIds) {
-
-    const dbIdsParam = Array.isArray (dbIds)
+    const dbIdsParam = Array.isArray(dbIds)
       ? this.arrayToParam(dbIds)
       : dbIds
 
@@ -350,12 +332,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/bubble
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/bubble
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getBubble (token, urn) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/bubble`
@@ -367,12 +348,11 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
-  //GET /modelderivative/v2/arkit/{urn}/unity
+  /// ////////////////////////////////////////////////////
+  // GET /modelderivative/v2/arkit/{urn}/unity
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   getUnityPackage (token, urn) {
-
     const url =
       `${ARVRToolkitSvc.BASE_URL}/modelderivative/v2/arkit/` +
       `${urn}/unity`
@@ -384,55 +364,46 @@ export default class ARVRToolkitSvc extends BaseSvc {
     })
   }
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////
-  requestAsync(params) {
+  /// ////////////////////////////////////////////////////
+  requestAsync (params) {
+    return new Promise(function (resolve, reject) {
+      request({
 
-      return new Promise( function(resolve, reject) {
+        url: params.url,
+        method: params.method || 'GET',
+        headers: params.headers || {
+          Authorization: 'Bearer ' + params.token
+        },
+        encoding: params.encoding,
+        json: params.json,
+        body: params.body
 
-          request({
+      }, function (err, response, body) {
+        try {
+          if (err) {
+            return reject(err)
+          }
 
-            url: params.url,
-            method: params.method || 'GET',
-            headers: params.headers || {
-              'Authorization': 'Bearer ' + params.token
-            },
-            encoding: params.encoding,
-            json: params.json,
-            body: params.body
+          if (body && body.errors) {
+            console.log('body error: ' + params.url)
+            console.log(body.errors)
 
-          }, function (err, response, body) {
+            return reject(body.errors)
+          }
 
-            try {
+          if (response && [200, 201, 202].indexOf(
+            response.statusCode) < 0) {
+            return reject(response.statusMessage)
+          }
 
-              if (err) {
-
-                return reject(err)
-              }
-
-              if (body && body.errors) {
-
-                console.log('body error: ' + params.url)
-                console.log(body.errors)
-
-                return reject(body.errors)
-              }
-
-              if (response && [200, 201, 202].indexOf(
-                  response.statusCode) < 0) {
-
-                return reject(response.statusMessage)
-              }
-
-              return resolve(body)
-
-            } catch(ex){
-
-              return reject(ex)
-            }
-          })
-        })
-    }
+          return resolve(body)
+        } catch (ex) {
+          return reject(ex)
+        }
+      })
+    })
+  }
 }

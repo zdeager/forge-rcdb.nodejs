@@ -3,16 +3,15 @@ import sanitizeHtml from 'sanitize-html'
 import compression from 'compression'
 import queryString from 'querystring'
 import express from 'express'
-import {Buffer} from 'buffer'
-import config from'c0nfig'
+import { Buffer } from 'buffer'
+import config from 'c0nfig'
 import path from 'path'
 
-module.exports = function() {
-
-  /////////////////////////////////////////////////////////
+export default function () {
+  /// //////////////////////////////////////////////////////
   // Services
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const derivativesSvc = ServiceManager.getService(
     'DerivativesSvc')
 
@@ -27,31 +26,27 @@ module.exports = function() {
 
   const galleryConfig = config.gallery
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // initialize
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   forgeSvc.get2LeggedToken().then((token) => {
-
-    ossSvc.getBucketDetails (
+    ossSvc.getBucketDetails(
       token, galleryConfig.bucket.bucketKey).then(() => {
 
-      }, (error) => {
-
-        if (error.statusCode === 404) {
-
-          ossSvc.createBucket (
-            token, galleryConfig.bucket)
-        }
-      })
+    }, (error) => {
+      if (error.statusCode === 404) {
+        ossSvc.createBucket(
+          token, galleryConfig.bucket)
+      }
+    })
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const guid = (format = 'xxxxxxxxxx') => {
-
     var d = new Date().getTime()
 
     var guid = format.replace(
@@ -65,27 +60,24 @@ module.exports = function() {
     return guid
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const btoa = (str) => {
-
     return new Buffer(str).toString('base64').replace(
       new RegExp('=', 'g'), '')
   }
 
   const atob = (b64Encoded) => {
-
     return new Buffer(b64Encoded, 'base64').toString()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  const postSVFJob = async(data) => {
-
+  /// //////////////////////////////////////////////////////
+  const postSVFJob = async (data) => {
     const bucketKey = queryString.escape(data.bucketKey)
     const objectKey = queryString.escape(data.objectKey)
 
@@ -100,33 +92,30 @@ module.exports = function() {
     const jobId = guid()
 
     try {
-
-      const input = Object.assign({urn}, data.compressedUrn
+      const input = Object.assign({ urn }, data.compressedUrn
         ? {
-            compressedUrn: data.compressedUrn,
-            rootFilename: data.rootFilename
-          }
+          compressedUrn: data.compressedUrn,
+          rootFilename: data.rootFilename
+        }
         : null)
 
       const job = {
         input,
         output: {
           force: true,
-          formats:[{
+          formats: [{
             views: ['2d', '3d'],
             type: 'svf'
           }]
         }
       }
 
-      await derivativesSvc.postJobWithProgress (
+      await derivativesSvc.postJobWithProgress(
         data.getToken, job, {
           waitResult: true,
           query: { outputType: 'svf' },
-          onProgress: async(progress) => {
-
+          onProgress: async (progress) => {
             if (data.socketId) {
-
               const filename = data.compressedUrn
                 ? data.rootFilename
                 : data.filename
@@ -137,7 +126,7 @@ module.exports = function() {
                 jobId
               }
 
-              socketSvc.broadcast (
+              socketSvc.broadcast(
                 'svf.progress', msg, data.socketId)
             }
           }
@@ -145,11 +134,11 @@ module.exports = function() {
 
       const modelInfo = {
         lifetime: galleryConfig.lifetime,
-        name : sanitizeHtml(data.name),
+        name: sanitizeHtml(data.name),
         env: 'AutodeskProduction',
         timestamp: new Date(),
-        //owner: data.userId,
-        model : {
+        // owner: data.userId,
+        model: {
           objectKey,
           fileId,
           urn
@@ -167,10 +156,8 @@ module.exports = function() {
         jobId
       }
 
-      socketSvc.broadcast ('model.added', msg)
-
+      socketSvc.broadcast('model.added', msg)
     } catch (ex) {
-
       // removes circular buffer
       const error = Object.assign(ex, {
         parent: undefined
@@ -182,7 +169,7 @@ module.exports = function() {
         error
       }
 
-      socketSvc.broadcast ('svf.error', msg)
+      socketSvc.broadcast('svf.error', msg)
 
       data.getToken().then((token) => {
         ossSvc.deleteObject(
@@ -191,24 +178,20 @@ module.exports = function() {
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Remove models which are too old
   //
-  /////////////////////////////////////////////////////////
-  const cleanModels = async(modelSvc) => {
-
+  /// //////////////////////////////////////////////////////
+  const cleanModels = async (modelSvc) => {
     const models = await modelSvc.getModels()
 
     models.forEach((modelInfo) => {
-
       if (modelInfo.lifetime) {
-
         const now = new Date()
 
         const age = (now - modelInfo.timestamp) / 1000
 
         if (age > modelInfo.lifetime) {
-
           deleteModel(modelSvc, modelInfo)
         }
       }
@@ -216,26 +199,22 @@ module.exports = function() {
 
     setTimeout(() => {
       cleanModels(modelSvc)
-    }, 1000 * 60 * 60) //Every hour
+    }, 1000 * 60 * 60) // Every hour
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Remove DB models which are not on OSS
   // or have no geometry (extraction failed)
   //
-  /////////////////////////////////////////////////////////
-  const purgeDB = async(modelSvc) => {
-
+  /// //////////////////////////////////////////////////////
+  const purgeDB = async (modelSvc) => {
     const token = await forgeSvc.get2LeggedToken()
 
     const models = await modelSvc.getModels()
 
-    models.forEach(async(modelInfo) => {
-
+    models.forEach(async (modelInfo) => {
       try {
-
         if (modelInfo.env === 'Local') {
-
           return
         }
 
@@ -255,27 +234,22 @@ module.exports = function() {
             token, urn)
 
         if (!derivativesSvc.hasDerivative(
-            manifest.body, {type: 'geometry'})) {
-
+          manifest.body, { type: 'geometry' })) {
           deleteModel(modelSvc, modelInfo)
         }
-
       } catch (ex) {
-
         if (ex.statusCode === 404) {
-
           deleteModel(modelSvc, modelInfo)
         }
       }
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Remove OSS models which are not in the DB
   //
-  /////////////////////////////////////////////////////////
-  const purgeOSS = async(modelSvc) => {
-
+  /// //////////////////////////////////////////////////////
+  const purgeOSS = async (modelSvc) => {
     const token = await forgeSvc.get2LeggedToken()
 
     const bucketKey = galleryConfig.bucket.bucketKey
@@ -283,7 +257,6 @@ module.exports = function() {
     const res = await ossSvc.getObjects(token, bucketKey)
 
     res.body.items.forEach((object) => {
-
       const urn = btoa(object.objectId)
 
       const opts = {
@@ -297,10 +270,9 @@ module.exports = function() {
 
       modelSvc.getModel(opts).then((model) => {
 
-        //console.log(model.name)
+        // console.log(model.name)
 
       }, () => {
-
         console.log(`NOT FOUND: ${object.objectKey}`)
 
         ossSvc.deleteObject(
@@ -309,12 +281,11 @@ module.exports = function() {
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // delete a model
   //
-  /////////////////////////////////////////////////////////
-  const deleteModel = async(modelSvc, modelInfo) => {
-
+  /// //////////////////////////////////////////////////////
+  const deleteModel = async (modelSvc, modelInfo) => {
     const token = await forgeSvc.get2LeggedToken()
 
     const modelId = modelInfo._id
@@ -342,28 +313,26 @@ module.exports = function() {
       urn
     }
 
-    socketSvc.broadcast ('model.deleted', msg)
+    socketSvc.broadcast('model.deleted', msg)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   ServiceManager.on('service.register', (svc) => {
-
     if (svc.name() === 'gallery-ModelSvc') {
-
       cleanModels(svc)
 
-      //purgeOSS(svc)
-      //purgeDB(svc)
+      // purgeOSS(svc)
+      // purgeDB(svc)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const router = express.Router()
 
   const shouldCompress = (req, res) => {
@@ -374,14 +343,12 @@ module.exports = function() {
     filter: shouldCompress
   }))
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  const buildUserWhiteListQuery = async(req, inQuery) => {
-
+  /// //////////////////////////////////////////////////////
+  const buildUserWhiteListQuery = async (req, inQuery) => {
     try {
-
       const userSvc = ServiceManager.getService(
         'UserSvc')
 
@@ -401,25 +368,21 @@ module.exports = function() {
 
       return Object.assign({}, inQuery, {
         $or: [
-          {whiteList: null},
-          {$where: funcDef}
+          { whiteList: null }
+          // {$where: funcDef}
         ]
       })
-
     } catch (ex) {
-
       return inQuery
     }
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const modelSvc = ServiceManager.getService(
@@ -431,7 +394,6 @@ module.exports = function() {
         })
 
       if (req.query.search) {
-
         fieldQuery.name = {
           $regex: new RegExp(req.query.search),
           $options: 'i'
@@ -453,9 +415,9 @@ module.exports = function() {
           desc: 1,
           path: 1,
           name: 1,
-          urn:  1,
-          env:  1,
-          git:  1
+          urn: 1,
+          env: 1,
+          git: 1
         },
         sort: {
           name: 1
@@ -467,22 +429,18 @@ module.exports = function() {
       const response = await modelSvc.getModels(opts)
 
       res.json(response)
-
     } catch (error) {
-
       res.status(error.statusCode || 500)
       res.json(error)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/count', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const modelSvc = ServiceManager.getService(
@@ -494,7 +452,6 @@ module.exports = function() {
         })
 
       if (req.query.search) {
-
         fieldQuery.name = {
           $regex: new RegExp(req.query.search),
           $options: 'i'
@@ -510,22 +467,18 @@ module.exports = function() {
       res.json({
         count: models.length
       })
-
     } catch (error) {
-
       res.status(error.statusCode || 500)
       res.json(error)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/recents', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const modelSvc = ServiceManager.getService(
@@ -537,7 +490,6 @@ module.exports = function() {
         })
 
       if (req.query.search) {
-
         fieldQuery.name = {
           $regex: new RegExp(req.query.search),
           $options: 'i'
@@ -553,7 +505,7 @@ module.exports = function() {
         pageQuery: {
           model: 1,
           name: 1,
-          urn:  1
+          urn: 1
         },
         sort: {
           _id: -1
@@ -565,22 +517,18 @@ module.exports = function() {
       const response = await modelSvc.getModels(opts)
 
       res.json(response)
-
     } catch (error) {
-
       res.status(error.statusCode || 500)
       res.json(error)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/:modelId', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const modelSvc = ServiceManager.getService(
@@ -588,10 +536,10 @@ module.exports = function() {
 
       const pageQuery = {
         dynamicExtensions: 1,
-        layout:1,
+        layout: 1,
         name: 1,
-        model:1,
-        env:1
+        model: 1,
+        env: 1
       }
 
       const model = await modelSvc.getById(
@@ -600,7 +548,6 @@ module.exports = function() {
         })
 
       if (model.whiteList) {
-
         const userSvc = ServiceManager.getService(
           'UserSvc')
 
@@ -608,20 +555,15 @@ module.exports = function() {
           req.session)
 
         if (!user) {
-
           res.status(401)
           return res.json('Unauthorized')
-
         } else {
-
           const allowed = model.whiteList.filter(
             (email) => {
-
               return user.emailId.match(new RegExp(email))
             })
 
           if (!allowed.length) {
-
             res.status(403)
             return res.json('Forbidden')
           }
@@ -629,23 +571,19 @@ module.exports = function() {
       }
 
       res.json(model)
-
     } catch (error) {
-
       res.status(error.statusCode || 500)
       res.json(error)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /{collection}/model/{modelId}/thumbnail
   // Get model thumbnail
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/:modelId/thumbnail', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const modelSvc = ServiceManager.getService(
@@ -655,7 +593,6 @@ module.exports = function() {
         req.params.modelId)
 
       if (model.thumbnail) {
-
         const img = new Buffer(model.thumbnail, 'base64')
 
         const expire = new Date(Date.now() + 2592000000).toUTCString()
@@ -687,135 +624,120 @@ module.exports = function() {
       res.setHeader('Expires', expire)
       res.contentType('image/png')
       res.end(response, 'binary')
-
     } catch (ex) {
-
       res.status(ex.statusCode || 404)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // upload resource
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.post('/:db',
     uploadSvc.uploader.single('model'),
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const userSvc = ServiceManager.getService(
+          'UserSvc')
 
-    try {
+        const user = await userSvc.getCurrentUser(
+          req.session)
 
-      const userSvc = ServiceManager.getService(
-        'UserSvc')
+        if (!user) {
+          res.status(401)
+          return res.json('Unauthorized')
+        }
 
-      const user = await userSvc.getCurrentUser(
-        req.session)
+        const models = await userSvc.getActiveModels(
+          config.database.models.gallery.collection,
+          user.userId)
 
-      if (!user) {
-
-        res.status(401)
-        return res.json('Unauthorized')
-      }
-
-      const models = await userSvc.getActiveModels(
-        config.database.models.gallery.collection,
-        user.userId)
-
-      if (user.uploadLimit !== undefined &&
+        if (user.uploadLimit !== undefined &&
           models.length >= user.uploadLimit) {
+          res.status(403)
+          return res.json('Forbidden: upload limit reached')
+        }
 
-        res.status(403)
-        return res.json('Forbidden: upload limit reached')
-      }
+        const bucketKey = galleryConfig.bucket.bucketKey
 
-      const bucketKey = galleryConfig.bucket.bucketKey
+        const socketId = req.body.socketId
 
-      const socketId = req.body.socketId
+        const uploadId = req.body.uploadId
 
-      const uploadId = req.body.uploadId
+        const file = req.file
 
-      const file = req.file
-
-      const objectKey = guid('xxxx-xxxx-xxxx') +
+        const objectKey = guid('xxxx-xxxx-xxxx') +
         path.extname(file.originalname)
 
-      const socketSvc = ServiceManager.getService(
-        'SocketSvc')
+        const socketSvc = ServiceManager.getService(
+          'SocketSvc')
 
-      const rootFilename = req.body.rootFilename
+        const rootFilename = req.body.rootFilename
 
-      const compressedUrn = !!rootFilename
+        const compressedUrn = !!rootFilename
 
-      const name =
+        const name =
         rootFilename ||
         path.parse(file.originalname).name
 
-      const opts = {
-        chunkSize: 5 * 1024 * 1024, //5MB chunks
-        concurrentUploads: 3,
-        onProgress: (info) => {
+        const opts = {
+          chunkSize: 5 * 1024 * 1024, // 5MB chunks
+          concurrentUploads: 3,
+          onProgress: (info) => {
+            if (socketId) {
+              const msg = Object.assign({}, info, {
+                filename: file.originalname,
+                bucketKey,
+                objectKey,
+                uploadId
+              })
 
-          if (socketId) {
-
-            const msg = Object.assign({}, info, {
+              socketSvc.broadcast(
+                'upload.progress', msg, socketId)
+            }
+          },
+          onComplete: () => {
+            postSVFJob({
+              getToken: () => forgeSvc.get2LeggedToken(),
               filename: file.originalname,
+              userId: user.userId,
+              db: req.params.db,
+              compressedUrn,
+              rootFilename,
               bucketKey,
               objectKey,
-              uploadId
+              socketId,
+              name
             })
+          },
+          onError: (error) => {
+            if (socketId) {
+              const msg = {
+                filename: file.originalname,
+                uploadId,
+                error
+              }
 
-            socketSvc.broadcast (
-              'upload.progress', msg, socketId)
-          }
-        },
-        onComplete: () => {
-
-          postSVFJob({
-            getToken: () => forgeSvc.get2LeggedToken(),
-            filename: file.originalname,
-            userId: user.userId,
-            db: req.params.db,
-            compressedUrn,
-            rootFilename,
-            bucketKey,
-            objectKey,
-            socketId,
-            name
-          })
-        },
-        onError: (error) => {
-
-          if (socketId) {
-
-            const msg = {
-              filename: file.originalname,
-              uploadId,
-              error
+              socketSvc.broadcast(
+                'upload.error', msg, socketId)
             }
-
-            socketSvc.broadcast (
-              'upload.error', msg, socketId)
           }
         }
+
+        const response =
+        await ossSvc.uploadObjectChunked(
+          () => forgeSvc.get2LeggedToken(),
+          bucketKey,
+          objectKey,
+          file, opts)
+
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
       }
-
-      const response =
-        await ossSvc.uploadObjectChunked (
-        () => forgeSvc.get2LeggedToken(),
-        bucketKey,
-        objectKey,
-        file, opts)
-
-      res.json(response)
-
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
+    })
 
   return router
 }
-
-

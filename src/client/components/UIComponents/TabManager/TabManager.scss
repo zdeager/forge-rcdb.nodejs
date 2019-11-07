@@ -1,11 +1,11 @@
-.tabs {
+.sbtabs {
   user-select: none;
   overflow:hidden;
   height: 100%;
   clear:both;
 }
 
-.tabs .headers {
+.sbtabs .headers {
   list-style-type:none;
   position:relative;
   bottom: -1px;
@@ -17,7 +17,7 @@
   margin-left: 3px;
 }
 
-.tabs > div {
+.sbtabs > div {
   clear: both;
   border:1px solid #CCC;
   padding:5px;
@@ -33,13 +33,13 @@
   border: 1px solid #aeaeae;
 }
 
-.tabs .headers li {
+.sbtabs .headers li {
   margin-right: 2px;
   height: 20px;
   float:left;
 }
 
-.tab-link, .tab-link:hover {
+.sbtab-link, .sbtab-link:hover {
   cursor: pointer;
   display:block;
   padding:5px 5px;
@@ -57,14 +57,14 @@
   overflow-x: hidden;
 }
 
-.tabs a label {
+.sbtabs a label {
   font-weight: normal;
   white-space: nowrap;
   overflow-x: hidden;
   cursor: pointer;
 }
 
-.tabs a.active {
+.sbtabs a.active {
   background-color: #fdfdfd;
   border-bottom:1px solid #E8E8E8;
   color: rgb(71, 72, 72);

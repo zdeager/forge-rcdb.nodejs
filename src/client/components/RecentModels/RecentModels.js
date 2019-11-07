@@ -1,6 +1,6 @@
 import autobind from 'autobind-decorator'
 import BaseComponent from 'BaseComponent'
-import ServiceManager from 'SvcManager'
+import {ServiceContext} from 'ServiceContext'
 import ImageGrid from 'ImageGrid'
 import './RecentModels.scss'
 import React from 'react'
@@ -15,11 +15,7 @@ class RecentModels extends BaseComponent {
 
     super ()
 
-    this.socketSvc = ServiceManager.getService(
-      'SocketSvc')
 
-    this.modelSvc = ServiceManager.getService(
-      'ModelSvc')
 
     this.state = {
       images: [],
@@ -36,10 +32,10 @@ class RecentModels extends BaseComponent {
   /////////////////////////////////////////////////////////
   componentWillMount () {
 
-    this.socketSvc.on('model.deleted',
+    this.context.socketSvc.on('model.deleted',
       this.refresh)
 
-    this.socketSvc.on('model.added',
+    this.context.socketSvc.on('model.added',
       this.refresh)
   }
 
@@ -58,10 +54,10 @@ class RecentModels extends BaseComponent {
   /////////////////////////////////////////////////////////
   componentWillUnmount () {
 
-    this.socketSvc.off('model.deleted',
+    this.context.socketSvc.off('model.deleted',
       this.refresh)
 
-    this.socketSvc.off('model.added',
+    this.context.socketSvc.off('model.added',
       this.refresh)
   }
 
@@ -74,11 +70,11 @@ class RecentModels extends BaseComponent {
 
     const db = this.props.database
 
-    const models = await this.modelSvc.getRecentModels(db)
+    const models = await this.context.modelSvc.getRecentModels(db)
 
     const images = models.map((model) => {
 
-      const thumbnailUrl = this.modelSvc.getThumbnailUrl(
+      const thumbnailUrl = this.context.modelSvc.getThumbnailUrl(
         db, model._id, 200)
 
       const href = `/viewer?id=${model._id}`

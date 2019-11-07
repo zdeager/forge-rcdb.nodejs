@@ -1,5 +1,4 @@
 import { ReflexElement } from 'react-reflex'
-import {findDOMNode} from 'react-dom'
 import PropTypes from 'prop-types'
 import Stopwatch from 'Stopwatch'
 import './PaneManager.scss'
@@ -27,22 +26,16 @@ class PaneElement extends React.Component {
   //
   //
   /////////////////////////////////////////////////////////
-  constructor () {
+  constructor (props) {
 
-    super()
+    super(props)
 
-    this.onLockSizeClicked =
-      this.onLockSizeClicked.bind(this)
 
-    this.onMinimizeClicked =
-      this.onMinimizeClicked.bind(this)
-
-    this.onMaximizeClicked =
-      this.onMaximizeClicked.bind(this)
 
     this.state = {
       size: -1
     }
+
   }
 
   /////////////////////////////////////////////////////////
@@ -65,7 +58,6 @@ class PaneElement extends React.Component {
   //
   /////////////////////////////////////////////////////////
   onMinimizeClicked () {
-
     if (this.props.sizeLocked) {
       return
     }
@@ -142,13 +134,25 @@ class PaneElement extends React.Component {
       })
   }
 
+  componentDidMount() {
+    this.onLockSizeClicked =
+      this.onLockSizeClicked.bind(this)
+
+    this.onMinimizeClicked =
+      this.onMinimizeClicked.bind(this)
+
+    this.onMaximizeClicked =
+      this.onMaximizeClicked.bind(this)
+
+ }
+
   /////////////////////////////////////////////////////////
   //
   //
   /////////////////////////////////////////////////////////
   getSize () {
 
-    const domElement = findDOMNode(this)
+    const domElement = this.myDiv
 
     switch (this.props.orientation) {
 
@@ -242,11 +246,7 @@ class PaneElement extends React.Component {
 
     return (
       <div className="controls">
-        <button onClick={this.onLockSizeClicked}
-          title="lock widget size">
-          <span className={lockClass} style={lockStyle}>
-          </span>
-        </button>
+      
         <button onClick={this.onMinimizeClicked}
           title="minimize widget">
           <span className="fa fa-minus-square-o">
@@ -273,7 +273,7 @@ class PaneElement extends React.Component {
 
     return (
       <ReflexElement size={this.state.size} {...this.props}>
-        <div className="pane-element" style={style}>
+        <div className="pane-element" style={style} ref={c=>this.myDiv=c}>
           { this.renderTitle() }
           <div className="content">
              { this.props.children }

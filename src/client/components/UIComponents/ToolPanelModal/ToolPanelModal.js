@@ -1,15 +1,13 @@
-/////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////
 // ToolPanelModal
 // by Philippe Leefsma, July 2016
 //
-/////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////
 import ToolPanelBase from 'ToolPanelBase/ToolPanelBase'
 import './ToolPanelModal.scss'
 
 export default class ToolPanelModal extends ToolPanelBase {
-
   constructor (container, options = {}) {
-
     super(container, options.title || '', {
       closable: true,
       movable: false,
@@ -23,24 +21,21 @@ export default class ToolPanelModal extends ToolPanelBase {
 
     $(this.container).addClass('tool-panel-modal')
 
-    if(options.height) {
-
+    if (options.height) {
       $(this.container).height(options.height)
     }
 
-    if(options.width) {
-
+    if (options.width) {
       $(this.container).width(options.width)
     }
 
     $(window).resize(() => {
-
       var h = $(this.container).height()
       var w = $(this.container).width()
 
       $(this.container).css({
-        left: `calc(50% - ${w/2}px)`,
-        top: `calc(40% - ${h/2}px)`
+        left: `calc(50% - ${w / 2}px)`,
+        top: `calc(40% - ${h / 2}px)`
       })
     })
 
@@ -55,19 +50,18 @@ export default class ToolPanelModal extends ToolPanelBase {
     })
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   htmlContent (id) {
-
     this.btnCancelId = ToolPanelBase.guid()
 
     this.btnOkId = ToolPanelBase.guid()
 
     this.bodyId = ToolPanelBase.guid()
 
-    var footer =  `
+    var footer = `
       <div class="tool-panel-modal-footer">
         <div style="float: right; margin-right: 10px">
           <button id="${this.btnCancelId}" class="btn">
@@ -87,12 +81,10 @@ export default class ToolPanelModal extends ToolPanelBase {
     $(this.container).append(footer)
 
     $('#' + this.btnCancelId).click(() => {
-
       this.setVisible(false)
     })
 
     $('#' + this.btnOkId).click(() => {
-
       this._dialogResult = 'OK'
 
       this.setVisible(false)
@@ -106,29 +98,27 @@ export default class ToolPanelModal extends ToolPanelBase {
     `
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   bodyContent (bodyContent) {
-
     $('#' + this.bodyId).append(bodyContent)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // onTitleDoubleClick override
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   onTitleDoubleClick (event) {
 
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   createBackground () {
-
     this.backgroundId = ToolPanelBase.guid()
 
     var html = `
@@ -140,40 +130,29 @@ export default class ToolPanelModal extends ToolPanelBase {
     $(html).insertBefore(this.container)
 
     $('#' + this.backgroundId).click(() => {
-
-      this.setVisible (false)
+      this.setVisible(false)
     })
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // setVisible override
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setVisible (show = false) {
-
     if (show) {
-
       var h = $(this.container).height()
       var w = $(this.container).width()
 
       $(this.container).css({
-        left: `calc(50% - ${w/2}px)`,
-        top: `calc(50% - ${h/2}px)`
+        left: `calc(50% - ${w / 2}px)`,
+        top: `calc(50% - ${h / 2}px)`
       })
 
       this.createBackground()
-
     } else {
-
       $('#' + this.backgroundId).remove()
     }
 
     super.setVisible(show)
   }
 }
-
-
-
-
-
-

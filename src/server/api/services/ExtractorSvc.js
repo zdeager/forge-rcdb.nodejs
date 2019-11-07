@@ -30,87 +30,79 @@ import _ from 'lodash'
 import fs from 'fs'
 
 export default class ExtractorSvc extends BaseSvc {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   constructor (config) {
-
-    super (config)
+    super(config)
 
     this.derivativesAPI = new Forge.DerivativesApi()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   name () {
-
     return 'ExtractorSvc'
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Create directory async
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   mkdirpAsync (dir) {
-
     return new Promise((resolve, reject) => {
       mkdirp(dir, (error) => {
         return error
-          ? reject (error)
+          ? reject(error)
           : resolve()
       })
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // download all URN resources to target directory
   // (unzipped)
   //
-  /////////////////////////////////////////////////////////
-	download (getToken, urn, directory) {
-
-		return new Promise (async (resolve, reject) => {
-
+  /// //////////////////////////////////////////////////////
+  download (getToken, urn, directory) {
+    return new Promise(async (resolve, reject) => {
       // make sure target dir exists
-      await this.mkdirpAsync (directory)
+      await this.mkdirpAsync(directory)
 
       // get token, can be object token or an async
       // function that returns the token
-      const token = ((typeof getToken == 'function')
+      const token = ((typeof getToken === 'function')
         ? await getToken()
         : getToken)
 
       // get URN top level manifest
       const manifest =
-        await this.derivativesAPI.getManifest (
-          urn, {}, {autoRefresh:false}, token)
+        await this.derivativesAPI.getManifest(
+          urn, {}, { autoRefresh: false }, token)
 
       // harvest derivatives
-      const derivatives = await this.getDerivatives (
+      const derivatives = await this.getDerivatives(
         getToken, manifest.body)
 
       // format derivative resources
       const nestedDerivatives = derivatives.map((item) => {
+        return item.files.map((file) => {
+          const localPath = path.resolve(
+            directory, item.localPath)
 
-          return item.files.map((file) => {
-
-            const localPath = path.resolve(
-                directory, item.localPath)
-
-            return {
-              basePath: item.basePath,
-              guid: item.guid,
-              mime: item.mime,
-              fileName: file,
-              urn: item.urn,
-              localPath
-            }
-          })
+          return {
+            basePath: item.basePath,
+            guid: item.guid,
+            mime: item.mime,
+            fileName: file,
+            urn: item.urn,
+            localPath
+          }
         })
+      })
 
       // flatten resources
       const derivativesList = flattenDeep(
@@ -120,43 +112,39 @@ export default class ExtractorSvc extends BaseSvc {
       // derivative file
       const downloadTasks = derivativesList.map(
         (derivative) => {
+          return new Promise(async (resolve) => {
+            const urn = path.join(
+              derivative.basePath,
+              derivative.fileName)
 
-        return new Promise(async(resolve) => {
+            const data = await this.getDerivative(
+              getToken, urn)
 
-          const urn = path.join(
-            derivative.basePath,
-            derivative.fileName)
+            const filename = path.resolve(
+              derivative.localPath,
+              derivative.fileName)
 
-          const data = await this.getDerivative(
-            getToken, urn)
+            await this.saveToDisk(data, filename)
 
-          const filename = path.resolve(
-            derivative.localPath,
-            derivative.fileName)
-
-          await this.saveToDisk(data, filename)
-
-          resolve(filename)
+            resolve(filename)
+          })
         })
-      })
 
       // wait for all files to be downloaded
       const files = await Promise.all(downloadTasks)
 
       resolve(files)
     })
-	}
+  }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Parse top level manifest to collect derivatives
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   parseManifest (manifest) {
-
     const items = []
 
     const parseNodeRec = (node) => {
-
       const roles = [
         'Autodesk.CloudPlatform.DesignDescription',
         'Autodesk.CloudPlatform.PropertyDatabase',
@@ -167,11 +155,10 @@ export default class ExtractorSvc extends BaseSvc {
         'preview',
         'raas',
         'pdf',
-        'lod',
+        'lod'
       ]
 
       if (roles.includes(node.role)) {
-
         const item = {
           guid: node.guid,
           mime: node.mime
@@ -179,14 +166,12 @@ export default class ExtractorSvc extends BaseSvc {
 
         const pathInfo = this.getPathInfo(node.urn)
 
-        items.push (Object.assign({}, item, pathInfo))
+        items.push(Object.assign({}, item, pathInfo))
       }
 
       if (node.children) {
-
-        node.children.forEach ((child) => {
-
-          parseNodeRec (child)
+        node.children.forEach((child) => {
+          parseNodeRec(child)
         })
       }
     }
@@ -198,25 +183,22 @@ export default class ExtractorSvc extends BaseSvc {
     return items
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Collect derivatives for SVF
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   getSVFDerivatives (getToken, item) {
-
-    return new Promise(async(resolve, reject) => {
-
+    return new Promise(async (resolve, reject) => {
       try {
-
-        const svfPath = item.urn.slice (
+        const svfPath = item.urn.slice(
           item.basePath.length)
 
         const files = [svfPath]
 
-        const data = await this.getDerivative (
+        const data = await this.getDerivative(
           getToken, item.urn)
 
-        const pack = new Zip (data, {
+        const pack = new Zip(data, {
           checkCRC32: true,
           base64: false
         })
@@ -224,13 +206,11 @@ export default class ExtractorSvc extends BaseSvc {
         const manifestData =
           pack.files['manifest.json'].asNodeBuffer()
 
-        const manifest = JSON.parse (
+        const manifest = JSON.parse(
           manifestData.toString('utf8'))
 
         if (manifest.assets) {
-
           manifest.assets.forEach((asset) => {
-
             // Skip SVF embedded resources
             if (asset.URI.indexOf('embed:/') === 0) {
               return
@@ -244,41 +224,34 @@ export default class ExtractorSvc extends BaseSvc {
           Object.assign({}, item, {
             files
           }))
-
       } catch (ex) {
-
-        reject (ex)
+        reject(ex)
       }
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Collect derivatives for F2D
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   getF2dDerivatives (getToken, item) {
-
-    return new Promise(async(resolve, reject) => {
-
+    return new Promise(async (resolve, reject) => {
       try {
-
         const files = ['manifest.json.gz']
 
         const manifestPath = item.basePath +
           'manifest.json.gz'
 
-        const data = await this.getDerivative (
+        const data = await this.getDerivative(
           getToken, manifestPath)
 
         const manifestData = Zlib.gunzipSync(data)
 
-        const manifest = JSON.parse (
+        const manifest = JSON.parse(
           manifestData.toString('utf8'))
 
         if (manifest.assets) {
-
           manifest.assets.forEach((asset) => {
-
             // Skip SVF embedded resources
             if (asset.URI.indexOf('embed:/') === 0) {
               return
@@ -292,28 +265,22 @@ export default class ExtractorSvc extends BaseSvc {
           Object.assign({}, item, {
             files
           }))
-
       } catch (ex) {
-
-        reject (ex)
+        reject(ex)
       }
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Get all derivatives from top level manifest
   //
-  /////////////////////////////////////////////////////////
-	getDerivatives (getToken, manifest) {
-
-    return new Promise(async(resolve, reject) => {
-
+  /// //////////////////////////////////////////////////////
+  getDerivatives (getToken, manifest) {
+    return new Promise(async (resolve, reject) => {
       const items = this.parseManifest(manifest)
 
       const derivativeTasks = items.map((item) => {
-
         switch (item.mime) {
-
           case 'application/autodesk-svf':
             return this.getSVFDerivatives(
               getToken, item)
@@ -332,14 +299,16 @@ export default class ExtractorSvc extends BaseSvc {
                   'objects_ids.json.gz',
                   'objects_avs.json.gz',
                   item.rootFileName
-                ]}))
+                ]
+              }))
 
           default:
             return Promise.resolve(
               Object.assign({}, item, {
                 files: [
                   item.rootFileName
-              ]}))
+                ]
+              }))
         }
       })
 
@@ -348,26 +317,25 @@ export default class ExtractorSvc extends BaseSvc {
 
       return resolve(derivatives)
     })
-	}
+  }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Generate path information from URN
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   getPathInfo (encodedURN) {
+    const urn = decodeURIComponent(encodedURN)
 
-		const urn = decodeURIComponent(encodedURN)
+    const rootFileName = urn.slice(
+      urn.lastIndexOf('/') + 1)
 
-    const rootFileName = urn.slice (
-      urn.lastIndexOf ('/') + 1)
+    const basePath = urn.slice(
+      0, urn.lastIndexOf('/') + 1)
 
-		const basePath = urn.slice (
-      0, urn.lastIndexOf ('/') + 1)
+    const localPathTmp = basePath.slice(
+      basePath.indexOf('/') + 1)
 
-		const localPathTmp = basePath.slice (
-      basePath.indexOf ('/') + 1)
-
-		const localPath = localPathTmp.replace (
+    const localPath = localPathTmp.replace(
       /^output\//, '')
 
     return {
@@ -376,22 +344,20 @@ export default class ExtractorSvc extends BaseSvc {
       basePath,
       urn
     }
-	}
+  }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Get derivative data for specific URN
   //
-  /////////////////////////////////////////////////////////
-	getDerivative (getToken, urn) {
-
-    return new Promise(async(resolve, reject) => {
-
+  /// //////////////////////////////////////////////////////
+  getDerivative (getToken, urn) {
+    return new Promise(async (resolve, reject) => {
       const baseUrl = 'https://developer.api.autodesk.com/'
 
       const url = baseUrl +
         `derivativeservice/v2/derivatives/${urn}`
 
-      const token = ((typeof getToken == 'function')
+      const token = ((typeof getToken === 'function')
         ? await getToken()
         : getToken)
 
@@ -399,41 +365,35 @@ export default class ExtractorSvc extends BaseSvc {
         url,
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer ' + token.access_token,
+          Authorization: 'Bearer ' + token.access_token,
           'Accept-Encoding': 'gzip, deflate'
         },
         encoding: null
       }, (err, response, body) => {
-
         if (err) {
-
           return reject(err)
         }
 
         if (body && body.errors) {
-
           return reject(body.errors)
         }
 
         if ([200, 201, 202].indexOf(
-            response.statusCode) < 0) {
-
+          response.statusCode) < 0) {
           return reject(response)
         }
 
         return resolve(body || {})
       })
     })
-	}
+  }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Save data to disk
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   saveToDisk (data, filename) {
-
-    return new Promise(async(resolve, reject) => {
-
+    return new Promise(async (resolve, reject) => {
       await this.mkdirpAsync(path.dirname(filename))
 
       const wstream = fs.createWriteStream(filename)
@@ -441,16 +401,12 @@ export default class ExtractorSvc extends BaseSvc {
       const ext = path.extname(filename)
 
       wstream.on('finish', () => {
-
         resolve()
       })
 
       if (typeof data === 'object' && ext === '.json') {
-
         wstream.write(JSON.stringify(data))
-
       } else {
-
         wstream.write(data)
       }
 
@@ -458,66 +414,51 @@ export default class ExtractorSvc extends BaseSvc {
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // Create a zip
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   createZip (rootDir, zipfile, zipRoot, files) {
-
     return new Promise((resolve, reject) => {
-
       try {
-
         const output = fs.createWriteStream(zipfile)
 
         const archive = archiver('zip')
 
         output.on('close', () => {
-
           resolve()
         })
 
         archive.on('error', (err) => {
-
-           reject(err)
+          reject(err)
         })
 
         archive.pipe(output)
 
         if (files) {
-
           files.forEach((file) => {
-
             try {
-
               const rs = fs.createReadStream(file)
 
               archive.append(rs, {
                 name:
                   `${zipRoot}/${file.replace(rootDir, '')}`
               })
-
-            } catch(ex){
-
+            } catch (ex) {
               console.log(ex)
             }
           })
-
         } else {
-
-          archive.bulk([ {
+          archive.bulk([{
             expand: false,
             src: [rootDir + '/*']
           }])
         }
 
         archive.finalize()
-
       } catch (ex) {
-
         reject(ex)
       }
     })
   }
 }
-

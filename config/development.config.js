@@ -7,10 +7,7 @@ const HOST_URL = 'http://localhost'
 const PORT = 3000
 
 const config = {
-
   env: 'development',
-
-  webpurify_API_KEY: process.env.WEBPURIFY_API_KEY,
 
   client: {
     viewerTheme: 'light-theme',
@@ -58,8 +55,9 @@ const config = {
       accessTokenUri: '/authentication/v1/gettoken',
 
       baseUri: 'https://developer.api.autodesk.com',
-      clientSecret: process.env.FORGE_DEV_CLIENT_SECRET,
-      clientId: process.env.FORGE_DEV_CLIENT_ID,
+
+      clientSecret: process.env.SECRET,
+      clientId: process.env.ID,
 
       scope: [
         'data:read',
@@ -74,12 +72,12 @@ const config = {
     },
 
     hooks: {
-      callbackUrl: `https://dcc54956.ngrok.io/api/forge/callback/hooks`
+      callbackUrl: `http://localhost:3000/api/forge/callback/oauth`
     },
 
     viewer: {
-      viewer3D: 'https://developer.api.autodesk.com/derivativeservice/v2/viewers/viewer3D.js?v=5.0',
-      style:    'https://developer.api.autodesk.com/derivativeservice/v2/viewers/style.css?v=5.0'
+      viewer3D: 'https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.*',
+      style:    'https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.*'
 
       // viewer3D: '/resources/libs/lmv/4.0.1/viewer3D.js',
       // threeJS:  '/resources/libs/lmv/4.0.1/three.js',
@@ -109,14 +107,6 @@ const config = {
     materials: {
       rcdb:{
         collection:'rcdb.materials'
-      }
-    },
-    criticalAssets: {
-      assets: {
-        collection:'rcdb.criticalAssets'
-      },
-      data: {
-        collection:'rcdb.criticalAssetData'
       }
     },
     users: {

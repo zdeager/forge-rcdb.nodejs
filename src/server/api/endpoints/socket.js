@@ -4,12 +4,11 @@ import { serverConfig as config } from 'c0nfig'
 import compression from 'compression'
 import express from 'express'
 
-module.exports = function() {
-
-  /////////////////////////////////////////////////////////
+export default function () {
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const router = express.Router()
 
   const shouldCompress = (req, res) => {
@@ -20,15 +19,13 @@ module.exports = function() {
     filter: shouldCompress
   }))
 
-  /////////////////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////////////////
   // POST /message
   // Post socket message
   //
-  /////////////////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////////////////
   router.post('/message', async (req, res) => {
-
     try {
-
       var payload = JSON.parse(req.body.payload)
 
       var socketSvc = ServiceManager.getService(
@@ -40,9 +37,7 @@ module.exports = function() {
         payload.filter)
 
       res.json(payload)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
