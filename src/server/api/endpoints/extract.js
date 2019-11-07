@@ -6,18 +6,15 @@ import rmdir from 'rmdir'
 import mzfs from 'mz/fs'
 import path from 'path'
 
-module.exports = function() {
-
+export default function () {
   const router = express.Router()
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // POST /
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.post('/:modelId', async (req, res) => {
-
     try {
-
       const modelId = req.params.modelId
 
       // supports extraction only for gallery models
@@ -66,7 +63,6 @@ module.exports = function() {
       rmdir(dir)
 
       if (req.body.socketId) {
-
         const socketSvc = ServiceManager.getService(
           'SocketSvc')
 
@@ -77,22 +73,18 @@ module.exports = function() {
         socketSvc.broadcast(
           'extract.ready', msg, req.body.socketId)
       }
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /status/:name
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/status/:modelId', async (req, res) => {
-
     try {
-
       const modelId = req.params.modelId
 
       const filename = path.resolve(__dirname,
@@ -101,22 +93,18 @@ module.exports = function() {
       await mzfs.stat(filename)
 
       res.json('ok')
-
     } catch (ex) {
-
       res.status(404)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /download/:name
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/download/:modelId', async (req, res) => {
-
     try {
-
       const modelId = req.params.modelId
 
       const modelSvc = ServiceManager.getService(
@@ -132,9 +120,7 @@ module.exports = function() {
       await mzfs.stat(filename)
 
       res.download(filename, `${name}.zip`)
-
     } catch (ex) {
-
       res.status(404)
       res.json(ex)
     }

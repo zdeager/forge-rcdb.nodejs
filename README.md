@@ -1,24 +1,27 @@
-
-# Forge Responsive Connected Database
-
-[![Node.js](https://img.shields.io/badge/Node.js-4.4.3-blue.svg)](https://nodejs.org/)
-[![npm](https://img.shields.io/badge/npm-2.15.1-blue.svg)](https://www.npmjs.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-6.7.0-blue.svg)](https://nodejs.org/)
+[![npm](https://img.shields.io/badge/npm-3.10.7-green.svg)](https://www.npmjs.com/)
+![Platforms](https://img.shields.io/badge/platform-windows%20%7C%20osx%20%7C%20linux-lightgray.svg)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://opensource.org/licenses/MIT)
 
-[![oAuth2](https://img.shields.io/badge/oAuth2-v1-green.svg)](http://developer.autodesk.com/)
-[![Data-Management](https://img.shields.io/badge/Data%20Management-v1-green.svg)](http://developer.autodesk.com/)
-[![OSS](https://img.shields.io/badge/OSS-v2-green.svg)](http://developer.autodesk.com/)
-[![Model-Derivative](https://img.shields.io/badge/Model%20Derivative-v2-green.svg)](http://developer.autodesk.com/)
+[![Viewer](https://img.shields.io/badge/Viewer-v7-green.svg)](http://forge.autodesk.com/)
+[![React](https://img.shields.io/badge/React-v16-blue.svg)](http://reactjs.org)
+[![Redux](https://img.shields.io/badge/Redux-v4-blue.svg)](http://redux.js.org/)
+[![Standard](https://img.shields.io/badge/Standard-Style-green.svg)](https://github.com/standard/standard)
+[![Build](https://travis-ci.org/dukedhx/forge-rcdb.nodejs.svg?branch=master)](https://travis-ci.org/dukedhx/forge-rcdb.nodejs)
 
 ## Description
 
 This is Forge Responsive Connected Database: A responsive React-based web application that showcases the use of Autodesk Forge Viewer and Forge web services, working in a connected environment with integrated data from multiple databases.
 
-This project is based on the cool [React Redux Starter Kit](https://github.com/davezuko/react-redux-starter-kit)
+This sample uses Viewer v7, Babel v7, React v16, Redux v4, Bootstrap v3, jQuery v3, and Webpack v4, and serves as a reference sample for building Viewer apps with popular front end stacks like React/Bootstrap/Webpack etc. as well.
 
+** If you are only interested in the extensions/plugins alone or would like to run this sample w/o MongoDB, see [library-javascript-viewer-extensions](https://github.com/Autodesk-Forge/library-javascript-viewer-extensions) **
 
 ![thumbnail](/thumbnail.png)
 
+## Live Demo
+
+[https://forge-rcdb.autodesk.io](https://forge-rcdb.autodesk.io)
 
 ## Prerequisites
 
@@ -28,42 +31,71 @@ To run these samples, you need your own Forge API credentials:
  * [Create a new App](https://developer.autodesk.com/myapps/create)
  * For this new App, you can use <b>http://localhost:3000/api/forge/callback/oauth</b> as Callback URL.
  * Take note of the <b>Client ID</b> and <b>Client Secret</b>, those are your API keys that must remain hidden
- * Install the latest release of [NodeJS](https://nodejs.org)
- * Clone this or download this project. It's recommended to install a git client such as [GitHub desktop](https://desktop.github.com/) or [SourceTree](https://www.sourcetreeapp.com/)
- * To clone it via command line, use the following (<b>Terminal</b> on MacOSX/Linux, <b>Git Shell</b> on Windows):
-
-    > git clone https://github.com/Autodesk-Forge/forge-rcdb.nodejs
-
+ * Install [Python ^2.7](https://www.python.org/downloads/release/python-2714/) and [NodeJS](https://nodejs.org) and make sure its version is between 8.x (LTS) to 10.x (LTS).
 
 ## Project Setup
 
+### Download/Clone the Project
+
+   * `git clone <ProjectURL> --single-branch`
+
+### MongoDB database
+
+   Install [MongoDB](https://www.mongodb.com/), start an instance locally and create a database - we recommend to follow the tutorial [here](https://docs.mongodb.com/manual/tutorial/getting-started/) for detailed instructions.
+
+   Import the four data collections using the JSON files [here](./resources/db) to your database, we recommend to use [MongoDB Compass](https://www.mongodb.com/products/compass) or [Robo3T](https://robomongo.org/) as client tools for this task. See [here](https://docs.mongodb.com/compass/master/import-export/) and [here](https://stackoverflow.com/questions/23009146/import-a-data-base-file-json-into-robo3t-robomongo) for instructions to import data. *Note: if you use MongoDB Compass to import the data you will need to minify the JSON objects into one lines otherwise the tool wouldn't be able to parse the JSON objects correctly*
+
+   Make sure your database collections look like below:
+
+```
+   YourDatabase
+   |
+   |-------------rcdb.models
+   |-------------rcdb.materials
+   |-------------gallery.models
+   |-------------configurator.models  
+```
+
+   Once you are done, be sure to specify the connection string or in the configuration JSON file or as environment variables - see instructions in the next section for details.
+
+   If you would like run the sample w/o setting up MongoDB, see how to run the Extension Gallery as the backend in `tips and tricks` section later.
+
+### Environment Setup
+
+   Fill out the configuration JSON file [here](./config) that matches your targeted environment mode (development or production).
+
+   For the production mode you can set up the below environment variables and will pick up.
+
+   - `RCDB_CONNECTION_STRING` // Specify the MongoDB connection string here
+   - `RCDB_DBHOST` //Specify the MongoDB host name
+   - `RCDB_DBNAME` //Specify the MongoDB database name, leave empty if using connection string
+   - `RCDB_USER`  //Specify the MongoDB user name, leave empty if using connection string
+   - `RCDB_PASS`  //Specify the MongoDB password, leave empty if using connection string
+   - `RCDB_PORT`  //Specify the MongoDB host port, leave empty if using connection string
+
+### Client and Server
+
    In **development**, the client is dynamically built by the
-   [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware), so just run:
+   [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware) and both the backend and client needs to run in parallel in separate sessions:
 
-    * `npm install`    *(downloads project dependencies locally)*
-
-    * `NODE_ENV=development HOT_RELOADING=true npm start`      *(builds client on the fly and run server)*
-
-    * open [http://localhost:3000](http://localhost:3000) in your favorite browser
+   - `npm install`    *(downloads project dependencies locally)*
+   - `npm run dev` or `node ./src/server/dev.js`   *(builds/runs server on the fly with or w/o monitoring code changes)*
+   - Start a new CLI session and run `npm run serve`    *(builds/runs client on the fly and monitors code changes)*
+   - navigate to [http://localhost:8080](http://localhost:8080)
 
 
    In **production**, the client requires a build step, so run:
-   
-    * Assign all environment variables as required in `config/production.config.js` *
-    
-    * `npm install` *(not required if you already run at previous step)*
 
-    * `npm run build-server && npm run build-prod && NODE_ENV=production npm start` *(builds client and run server)*
+   - `npm install` *(not required if you already run at previous step)*
+   - `npm run build` *(builds client)*
+   - `npm start` *(run the server)*
+   - navigate to [http://localhost:3000](http://localhost:3000)
 
-    * open [http://localhost:3000](http://localhost:3000) in your favorite browser
+### References
 
+- Model Schema:
 
-* To see your project open your browser `http://localhost:3000`
-
-For database configuration, refer to config/
-
-Model Schema:
-
+```json
     {
       "_id" : "mongoDB Id",
       "urn" : "model URN",
@@ -78,9 +110,11 @@ Model Schema:
       },
       "thumbnail" : "... base64 encoded thumbnail ... "
     }
+```
 
-Material Schema:
+- Material Schema:
 
+```json
     {
       "_id" : ObjectId("57ee6b26dfda94c109157449"),
       "name" : "Steel",
@@ -88,9 +122,9 @@ Material Schema:
       "currency" : "USD",
       "price" : 2.5
     }
+```
 
-An export of my database records is provided in /resources/db
-
+An export of my database records is provided in `/resources/db`
 
 ## Cloud Deployment
 
@@ -113,59 +147,45 @@ You should be ready to deploy to heroku, providing the same Forge credentials us
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-## Live Demo
-
-[https://forge-rcdb.autodesk.io](https://forge-rcdb.autodesk.io)
-
- ![forge-rcdb](resources/img/logos/adsk-forge.png)
-
 
 ## Tips and Tricks
+
+> How to run the sample without the trouble of setting up MongoDB?
+
+Run the Gallery app from the [Extension Library project](https://github.com/Autodesk-Forge/library-javascript-viewer-extensions), then start up a new CLI session and just run `npm run serve` to start the client app alone.
+
+> Why am I getting the error "Unexpected end of input JSON" when importing the data with MongoDB Compass?
+
+You will need to minify the JSON objects into one lines otherwise the tool wouldn't be able to parse the JSON objects correctly. Alternatively use `Robo3T` to import the data instead.
 
 > What should I do if I get the error `Module build failed: Error: Node Sass does not yet support your current environment: OS X 64-bit with Unsupported runtime (64)` when I tried to build the front end?
 
 Rebuild `node-ass` with the command `npm rebuild node-sass` and build to production again.
 
+> Error: ENOENT: no such file or directory, scandir 'F:\Projects\forge-rcdb\node_modules\node-sass\vendor'
+
+Run `node ./node_modules/node-sass/scripts/install.js`
+
+> Various errors when building modules with 'node-gyp' on Windows
+
+Install Python ^2.7 and the build tools with `npm install --global --production windows-build-tools`
+
+> Starting the application in production hangs at "Cleaning Dir"?
+
+The log output is misleading - actually it's your MongoDB Atlas Cluster taking time to pin up.
+
 > How should I migrate from mLab to MongoDB Atlas?
 
 See [here](https://docs.mongodb.com/guides/cloud/migrate-from-mlab/) for their official guide. Also pull the latest changes from forge-rcdb and follow the instructions to set up your connection strings.
 
-> What connection string should I use for my MongoDB cluster?
+> What connection string should I use for my MongoDB instance?
 
-If you are using MongoDB version earlier than 3.4 (default version as this sample), use the sharded schema: `mongodb://<username>:<password>@cluster0-shard-00-00-u9dtd.mongodb.net:27017,cluster0-shard-00-01-u9dtd.mongodb.net:27017,cluster0-shard-00-02-u9dtd.mongodb.net:27017/<databasename>?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true`
+If you are using MongoDB version earlier than 3.4 (default version as this sample), use the sharded schema: `mongodb://<username>:<password>@cluster0-shard-00-00-u9dtd.mongodb.net:27017,cluster0-shard-00-01-u9dtd.mongodb.net:27017,cluster0-shard-00-02-u9dtd.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true`
 
-Otherwise go with the service schema which is much simpler: `mongodb+srv://<username>:<password>@cluster0-u9dtd.mongodb.net/<databasename>?retryWrites=true`
+Otherwise go with the service schema which is much simpler: `mongodb+srv://<username>:<password>@cluster0-u9dtd.mongodb.net/test?retryWrites=true`
 
 See [here](https://docs.mongodb.com/manual/reference/connection-string/) for details on connection string schema.
 
-> I have set everything up right but am still unable to connect to MongoDB Atlas?
-
-Be sure to follow [this tutorial](https://docs.atlas.mongodb.com/security-whitelist/) to whitelist your server. Contact Forge Help if the problem persists.
-
-Windows 10 64bit node-gyp errors solution:
-
-Run cmd as administrator
-Run npm config edit (You will get notepad editor)
-Change Prefix variable to C:\Users\<User Name>\AppData\Roaming\npm
-
-npm install -g node-gyp
-npm install -g --msvs_version=2013 node-gyp rebuild
-
-## License
-
-[MIT License](http://opensource.org/licenses/MIT)
-
 ## Written by
 
-Written by [Philippe Leefsma](http://twitter.com/F3lipek)
-
 Forge Partner Development - [http://forge.autodesk.com](http://forge.autodesk.com)
-
-## Windows 10 64bit node-gyp errors solution:
-
-Run cmd as administrator
-Run npm config edit (You will get notepad editor)
-Change Prefix variable to C:\Users\<User Name>\AppData\Roaming\npm
-
-npm install -g node-gyp
-npm install -g --msvs_version=2013 node-gyp rebuild

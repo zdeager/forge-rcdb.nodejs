@@ -4,13 +4,11 @@ import './LayoutDlg.scss'
 import React from 'react'
 
 export default class LayoutDlg extends React.Component {
-
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
-  constructor() {
-
+  /// //////////////////////////////////////////////////////////////
+  constructor () {
     super()
 
     this.items = [
@@ -35,58 +33,56 @@ export default class LayoutDlg extends React.Component {
     ]
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   close () {
-
     this.props.close()
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   onClick (item) {
-
     this.props.layoutChange(item.layoutType)
     this.props.saveAppState()
     this.props.close()
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
-  render() {
-
+  /// //////////////////////////////////////////////////////////////
+  render () {
     return (
       <div>
-        <Modal className="dialog layout"
-          contentLabel=""
+        <Modal
+          className='dialog layout'
+          contentLabel=''
           isOpen={this.props.open}
-          onRequestClose={() => {this.close()}}>
+          onRequestClose={() => { this.close() }}
+        >
 
-          <div className="title">
-            <img/>
+          <div className='title'>
+            <img />
             <b>Select layout type ...</b>
           </div>
 
-          <div className="content responsive-grid">
+          <div className='content responsive-grid'>
 
             {this.items.map((item) => {
               return (
-                <a key={item.key} href="#" onClick={()=>{this.onClick(item)}}>
+                <a key={item.key} href='#' onClick={() => { this.onClick(item) }}>
                   <figure>
-                    <img className={item.className}/>
+                    <img className={item.className} />
                     <figcaption>
-                    {item.caption}
+                      {item.caption}
                     </figcaption>
                   </figure>
                 </a>)
-              })
-            }
+            })}
           </div>
 
         </Modal>

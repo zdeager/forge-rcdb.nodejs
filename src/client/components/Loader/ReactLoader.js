@@ -1,9 +1,7 @@
 import React from 'react'
 
 class Loader extends React.Component {
-
   render () {
-
     const className = 'loader-background' +
       (!this.props.show ? ' disabled' : '')
 
@@ -14,8 +12,7 @@ class Loader extends React.Component {
 
     return (
       <div className={className} style={style}>
-        <div className="loader">
-        </div>
+        <div className='loader' />
       </div>
     )
   }

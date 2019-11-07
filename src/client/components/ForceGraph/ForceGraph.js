@@ -1,69 +1,61 @@
-/////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////
 // ForceGraph
 // by Philippe Leefsma, May 2017
 //
-/////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////
 import './ForceGraph.scss'
 import React from 'react'
 import d3 from 'd3'
 
 class ForceGraph extends React.Component {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   constructor (props) {
-
-    super (props)
+    super(props)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   componentDidMount () {
+    const { root } = this.props
 
-    const {root} = this.props
-
-    this.draw (root)
+    this.draw(root)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   shouldComponentUpdate (nextProps) {
-
     if (nextProps.guid !== this.props.guid) {
-
       return true
     }
 
     return false
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   componentDidUpdate () {
-
-    const {root} = this.props
+    const { root } = this.props
 
     $(this.container).empty()
 
     this.draw(root)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   draw (root) {
-
     if (!root) {
-
       return
     }
 
@@ -74,18 +66,17 @@ class ForceGraph extends React.Component {
 
     var force = d3.layout.force()
       .size([width, height])
-      .on("tick", () => tick())
+      .on('tick', () => tick())
 
     var svg = d3.select(container)
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
 
-    var link = svg.selectAll(".link")
-    var node = svg.selectAll(".node")
+    var link = svg.selectAll('.link')
+    var node = svg.selectAll('.node')
 
     const update = () => {
-
       var nodes = this.flatten(root)
       var links = d3.layout.tree().links(nodes)
 
@@ -103,72 +94,66 @@ class ForceGraph extends React.Component {
       link.exit().remove()
 
       // Enter any new links.
-      link.enter().insert("line", ".node")
-        .attr("class", "link")
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; })
+      link.enter().insert('line', '.node')
+        .attr('class', 'link')
+        .attr('x1', function (d) { return d.source.x })
+        .attr('y1', function (d) { return d.source.y })
+        .attr('x2', function (d) { return d.target.x })
+        .attr('y2', function (d) { return d.target.y })
 
       // Update the nodes…
-      node = node.data(nodes, (d)=> {
+      node = node.data(nodes, (d) => {
         return d.id
-      }).style("fill", color)
+      }).style('fill', color)
 
       // Exit any old nodes.
       node.exit().remove()
 
       // Enter any new nodes.
-      node.enter().append("circle")
-        .attr("class", "node")
-        .attr("cx", function(d) { return d.x })
-        .attr("cy", function(d) { return d.y })
-        .attr("r", function(d) {
+      node.enter().append('circle')
+        .attr('class', 'node')
+        .attr('cx', function (d) { return d.x })
+        .attr('cy', function (d) { return d.y })
+        .attr('r', function (d) {
           var size = d.size * 10.0 / root.average
           size = Math.max(size, 3.0)
           size = Math.min(size, 15.0)
           return size
         })
-        .style("fill", color)
-        .on("dblclick", onDoubleClick)
-        .on("click", (n) => {
+        .style('fill', color)
+        .on('dblclick', onDoubleClick)
+        .on('click', (n) => {
           if (this.props.onNodeClicked) {
-            this.props.onNodeClicked (n)
+            this.props.onNodeClicked(n)
           }
         })
         .call(force.drag)
     }
 
     const tick = () => {
+      link.attr('x1', (d) => { return d.source.x })
+        .attr('y1', (d) => { return d.source.y })
+        .attr('x2', (d) => { return d.target.x })
+        .attr('y2', (d) => { return d.target.y })
 
-      link.attr("x1", (d) => { return d.source.x })
-          .attr("y1", (d) => { return d.source.y })
-          .attr("x2", (d) => { return d.target.x })
-          .attr("y2", (d) => { return d.target.y })
-
-      node.attr("cx", (d) => { return d.x })
-          .attr("cy", (d) => { return d.y })
+      node.attr('cx', (d) => { return d.x })
+        .attr('cy', (d) => { return d.y })
     }
 
     // Color leaf nodes orange, and packages white or blue.
     const color = (d) => {
       return d._children
-        ? "#3182bd"
-        : d.children ? "#c6dbef" : "#fd8d3c"
+        ? '#3182bd'
+        : d.children ? '#c6dbef' : '#fd8d3c'
     }
 
     // Toggle children on double-click.
     const onDoubleClick = (d) => {
-
       if (!d3.event.defaultPrevented) {
-
         if (d.children) {
-
           d._children = d.children
           d.children = null
-
         } else {
-
           d.children = d._children
           d._children = null
         }
@@ -180,19 +165,16 @@ class ForceGraph extends React.Component {
     update()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   flatten (parent) {
-
     const nodes = []
-    var i =0
+    var i = 0
 
     const recurse = (node) => {
-
       if (node.children) {
-
         node.children.forEach(recurse)
       }
 
@@ -207,16 +189,16 @@ class ForceGraph extends React.Component {
     return nodes
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   render () {
-
     return (
-      <div className="force-graph"
-        ref={ (div) => this.container = div }>
-      </div>
+      <div
+        className='force-graph'
+        ref={(div) => this.container = div}
+      />
     )
   }
 }

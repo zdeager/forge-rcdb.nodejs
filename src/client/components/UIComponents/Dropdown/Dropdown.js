@@ -1,13 +1,12 @@
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 // Create dropwdown menu
 //
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 import UIComponent from 'UIComponent'
 import './Dropdown.scss'
 
 export default class Dropdown extends UIComponent {
-
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // opts = {
   //   container: viewer.container,
   //   title: 'Material',
@@ -25,9 +24,8 @@ export default class Dropdown extends UIComponent {
   //   ]
   // }
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   constructor (opts) {
-
     super()
 
     this.dropdownId = guid()
@@ -48,7 +46,7 @@ export default class Dropdown extends UIComponent {
       <div id="${this.dropdownId}" class="dropdown lmv-dropdown">
       <button id="${this.buttonId}" class="btn dropdown-toggle"
         type="button"
-        data-toggle="dropdown" disabled>
+        data-toggle="dropdown">
         <div class="label-container">
           <label id="${this.labelId}" class="label">${this.title}</label>
         </div>
@@ -70,18 +68,16 @@ export default class Dropdown extends UIComponent {
 
     $('#' + this.labelId).text(text)
 
-    opts.menuItems.forEach((item)=> {
-
+    opts.menuItems.forEach((item) => {
       this.addItem(item)
     })
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   addItem (item, setActive = false) {
-
     $('#' + this.buttonId).prop('disabled', false)
 
     var itemId = item.id || guid()
@@ -93,10 +89,8 @@ export default class Dropdown extends UIComponent {
 
     $('#' + this.listId).append(itemHtml)
 
-    var onClick = (event)=> {
-
-      if(event){
-
+    var onClick = (event) => {
+      if (event) {
         event.preventDefault()
       }
 
@@ -106,8 +100,7 @@ export default class Dropdown extends UIComponent {
         'item.selected',
         item)
 
-      if(item.handler) {
-
+      if (item.handler) {
         item.handler()
       }
 
@@ -115,41 +108,36 @@ export default class Dropdown extends UIComponent {
         this.title + ': ' + item.name)
     }
 
-    $('#' + itemId).click((e)=>{
+    $('#' + itemId).click((e) => {
       onClick(e)
     })
 
-    if(setActive){
+    if (setActive) {
       onClick()
     }
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setCurrentItem (item) {
-
     this.currentItem = item
 
     $('#' + this.labelId).text(
       this.title + ': ' + item.name)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setItems (items, selectedItemIdx = 0) {
-
     $(`#${this.listId} li`).remove()
 
     if (selectedItemIdx < 0) {
-
       $('#' + this.labelId).text(this.opts.prompt)
-
-    }  else {
-
+    } else {
       var text = this.title + ': ' +
         items[selectedItemIdx].name
 
@@ -157,23 +145,19 @@ export default class Dropdown extends UIComponent {
     }
 
     items.forEach((item) => {
-
       this.addItem(item)
     })
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   removeCurrentItem () {
-
-    if(this.currentItem){
-
+    if (this.currentItem) {
       $('#' + this.currentItem.id).remove()
 
-      if($('#' + this.listId + ' > li').length === 0){
-
+      if ($('#' + this.listId + ' > li').length === 0) {
         $('#' + this.buttonId).prop('disabled', true)
       }
 
@@ -185,14 +169,12 @@ export default class Dropdown extends UIComponent {
     this.emit('item.selected', null)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   removeItem (item) {
-
-    if(this.currentItem && this.currentItem.id === item.id) {
-
+    if (this.currentItem && this.currentItem.id === item.id) {
       $('#' + this.labelId).text(this.title)
 
       this.currentItem = null
@@ -200,48 +182,43 @@ export default class Dropdown extends UIComponent {
 
     $('#' + item.id).remove()
 
-    if($('#' + this.listId + ' > li').length === 0){
-
+    if ($('#' + this.listId + ' > li').length === 0) {
       $('#' + this.buttonId).prop('disabled', true)
     }
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setVisible (show) {
-
     $('#' + this.dropdownId).css({
       display: show ? 'block' : 'none'
     })
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setPosition (pos) {
-
     $('#' + this.dropdownId).css(opts.pos)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
-  open() {
-
+  /// //////////////////////////////////////////////////////////
+  open () {
     $('#' + this.dropdownId).addClass('open')
     $('#' + this.dropdownId).trigger('click.bs.dropdown')
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
-  clear() {
-
+  /// //////////////////////////////////////////////////////////
+  clear () {
     $('#' + this.buttonId).prop('disabled', true)
 
     $(`#${this.listId} li`).remove()
@@ -250,12 +227,11 @@ export default class Dropdown extends UIComponent {
   }
 }
 
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 //
 //
-/////////////////////////////////////////////////////////////
-function guid(format='xxxxxxxx') {
-
+/// //////////////////////////////////////////////////////////
+function guid (format = 'xxxxxxxx') {
   var d = new Date().getTime()
 
   var guid = format.replace(

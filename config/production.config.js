@@ -3,14 +3,12 @@
 // PRODUCTION configuration
 //
 /////////////////////////////////////////////////////////////////////
-const HOST_URL = 'https://forge-rcdb.autodesk.io'
-const PORT = 443
+const HOST_URL = process.env.RCDB_APP_HOST
+const PORT = process.env.RCDB_APP_PORT
 
 const config = {
 
   env: 'production',
-
-  webpurify_API_KEY: process.env.WEBPURIFY_API_KEY,
 
   client: {
     // this the public host name of your server for the
@@ -81,14 +79,14 @@ const config = {
     },
 
     viewer: {
-      viewer3D: 'https://developer.api.autodesk.com/derivativeservice/v2/viewers/viewer3D.min.js?v=6.0',
-      style:    'https://developer.api.autodesk.com/derivativeservice/v2/viewers/style.css?v=6.0'
+      viewer3D: 'https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.2',
+      style:    'https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.2'
     }
   },
   // Set the "connectionString" and "dbName" and leave other fields empty if you'd like to specify the entire connection string yourself.
   database: {
     type: 'mongo',
-    connectionString: '',
+    connectionString: process.env.RCDB_CONNECTION_STRING,
     dbhost: process.env.RCDB_DBHOST,
     dbName: process.env.RCDB_DBNAME,
     user: process.env.RCDB_USER,

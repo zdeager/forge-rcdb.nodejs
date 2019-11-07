@@ -4,13 +4,11 @@ import './DatabaseDlg.scss'
 import React from 'react'
 
 export default class DatabaseDlg extends React.Component {
-
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
-  constructor() {
-
+  /// //////////////////////////////////////////////////////////////
+  constructor () {
     super()
 
     this.items = [
@@ -18,59 +16,57 @@ export default class DatabaseDlg extends React.Component {
     ]
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   close () {
-
     this.props.close()
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   onClick (item) {
-
     this.props.onSelectItem(item)
     this.props.close()
   }
 
-  /////////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////////
-  render() {
-
+  /// //////////////////////////////////////////////////////////////
+  render () {
     return (
       <div>
-        <Modal className="dialog database"
-          contentLabel=""
+        <Modal
+          className='dialog database'
+          contentLabel=''
           isOpen={this.props.open}
-          onRequestClose={() => {this.close()}}>
+          onRequestClose={() => { this.close() }}
+        >
 
-          <div className="title">
-            <img/>
+          <div className='title'>
+            <img />
             <b>Select Database ...</b>
           </div>
 
-          <div className="content responsive-grid">
+          <div className='content responsive-grid'>
 
           NOT YET IMPLEMENTED :( ...
 
             {this.items.map((item) => {
               return (
-                <a key={item.key} href="#" onClick={()=>{this.onClick(item)}}>
+                <a key={item.key} href='#' onClick={() => { this.onClick(item) }}>
                   <figure>
-                    <img src={item.img}/>
+                    <img src={item.img} />
                     <figcaption>
-                    {item.caption}
+                      {item.caption}
                     </figcaption>
                   </figure>
                 </a>)
-            })
-              }
+            })}
           </div>
 
         </Modal>

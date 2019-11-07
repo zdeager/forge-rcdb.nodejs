@@ -1,20 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
-import store from 'store'
+import store from '../../../store'
 
-import LanguageProvider from 'translations/LanguageProvider'
-import { translationMessages } from 'i18n'
-/////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////
 //
 //
-/////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////
 import EventsEmitter from 'EventsEmitter'
 import velocity from 'velocity-animate'
 import './ToolPanelBase.scss'
 
 function getDefaultOptions () {
-
   return {
     shadow: true,
     movable: true,
@@ -23,14 +20,12 @@ function getDefaultOptions () {
 }
 
 export default class ToolPanelBase extends
-  EventsEmitter.Composer (Autodesk.Viewing.UI.DockingPanel) {
-
-  ///////////////////////////////////////////////////////////////////
+  EventsEmitter.Composer(Autodesk.Viewing.UI.DockingPanel) {
+  /// ////////////////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////////////////
-  static guid(format = 'xxxxxxxxxx') {
-
+  /// ////////////////////////////////////////////////////////////////
+  static guid (format = 'xxxxxxxxxx') {
     var d = new Date().getTime()
 
     var guid = format.replace(
@@ -44,12 +39,11 @@ export default class ToolPanelBase extends
     return guid
   }
 
-  ///////////////////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////////////////
-  constructor(container, title, options = {}) {
-
+  /// ////////////////////////////////////////////////////////////////
+  constructor (container, title, options = {}) {
     super(container,
       ToolPanelBase.guid(),
       title,
@@ -63,52 +57,45 @@ export default class ToolPanelBase extends
     this._btnElement = options.buttonElement
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
-  htmlContent(id) {
-
+  /// //////////////////////////////////////////////////////////
+  htmlContent (id) {
     return '<div></div>'
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
-  unload() {
-
+  /// //////////////////////////////////////////////////////////
+  unload () {
     this.setVisible(false)
 
     $(this.container).remove()
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////////
-  isVisible() {
-
+  /// //////////////////////////////////////////////////////////
+  isVisible () {
     return this._isVisible
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // setVisible override
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setVisible (show = false) {
-
     if (show) {
-
       $(this.container).velocity({
         rotateY: [0, -90]
       })
     }
 
     if (show !== this._isVisible) {
-
-      if( typeof this._events !== 'undefined') {
-
+      if (typeof this._events !== 'undefined') {
         this.emit((show ? 'open' : 'close'), {
           result: this._dialogResult
         })
@@ -118,13 +105,9 @@ export default class ToolPanelBase extends
     this._isVisible = show
 
     if (this._btnElement) {
-
       if (show) {
-
         this._btnElement.classList.add('active')
-
       } else {
-
         this._btnElement.classList.remove('active')
       }
     }
@@ -132,21 +115,19 @@ export default class ToolPanelBase extends
     super.setVisible(show)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // Toggles panel visibility
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   toggleVisibility () {
-
     this.setVisible(!this._isVisible)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // initialize override
   //
-  /////////////////////////////////////////////////////////////
-  initialize() {
-
+  /// //////////////////////////////////////////////////////////
+  initialize () {
     this.title = this.createTitleBar(
       this.titleLabel || this.container.id)
 
@@ -156,11 +137,11 @@ export default class ToolPanelBase extends
       this.titleLabel || this.container.id,
       this.options)
 
-    if(this.options.movable) {
+    if (this.options.movable) {
       this.initializeMoveHandlers(this.title)
     }
 
-    if(this.options.closable){
+    if (this.options.closable) {
       this.closer = this.createCloseButton()
       $(this.title).append(this.closer)
     }
@@ -179,15 +160,14 @@ export default class ToolPanelBase extends
     }
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // createTitleBar override
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   createTitleBar (title) {
+    var titleBar = document.createElement('div')
 
-    var titleBar = document.createElement("div")
-
-    titleBar.className = "dockingPanelTitle"
+    titleBar.className = 'dockingPanelTitle'
 
     this.titleTextId = ToolPanelBase.guid()
 
@@ -202,10 +182,8 @@ export default class ToolPanelBase extends
 
     $(titleBar).append(html)
 
-    this.addEventListener(titleBar, 'click', (event)=> {
-
+    this.addEventListener(titleBar, 'click', (event) => {
       if (!this.movedSinceLastClick) {
-
         this.onTitleClick(event)
       }
 
@@ -213,62 +191,53 @@ export default class ToolPanelBase extends
     })
 
     this.addEventListener(titleBar, 'dblclick', (event) => {
-
       this.onTitleDoubleClick(event)
     })
 
     return titleBar
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // setTitle override
   //
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   setTitle (text, options) {
-
     if (options && options.localizeTitle) {
-
       $(`#${this.titleTextId}`).attr('data-i18n', text)
 
       text = Autodesk.Viewing.i18n.translate(text)
-
     } else {
-
       $(`#${this.titleTextId}`).removeAttr('data-i18n')
     }
 
     $(`#${this.titleTextId}`).text(text)
   }
 
-  /////////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////////
   // onTitleDoubleClick override
   //
-  /////////////////////////////////////////////////////////////
-  onTitleDoubleClick(event) {
-
+  /// //////////////////////////////////////////////////////////
+  onTitleDoubleClick (event) {
     this._isMinimized = !this._isMinimized
 
-    if(this._isMinimized) {
-
+    if (this._isMinimized) {
       this._height = $(this.container).css('height')
 
       $(this.container).css({
-        'min-height':'32px',
+        'min-height': '32px',
         overflow: 'hidden',
-        height:'32px'
+        height: '32px'
       })
-
     } else {
-
       $(this.container).css({
-        height:this._height,
-        'min-height':'100px',
+        height: this._height,
+        'min-height': '100px',
         overflow: 'visible'
       })
     }
   }
 
-  renderReact() {
+  renderReact () {
     const Comp = this.render(this.options.viewer)
     if (!this.reactMountDOM) {
       console.error('renderReact method need this.reactMountDOM')
@@ -276,9 +245,7 @@ export default class ToolPanelBase extends
     }
     ReactDOM.render(
       <Provider store={store}>
-        <LanguageProvider messages={translationMessages}>
-          {Comp}
-        </LanguageProvider>
+        {Comp}
       </Provider>,
       this.reactMountDOM
     )

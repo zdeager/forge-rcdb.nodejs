@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Autodesk, Inc. All rights reserved
 // Written by Philippe Leefsma 2014 - ADN/Developer Technical Services
 //
@@ -14,19 +14,18 @@
 // MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK, INC.
 // DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
 // UNINTERRUPTED OR ERROR FREE.
-/////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////////////////
 import ServiceManager from '../services/SvcManager'
 import compression from 'compression'
 import express from 'express'
 import mongo from 'mongodb'
 import config from 'c0nfig'
-import WebPurify from 'webpurify';
-module.exports = function () {
 
-  /////////////////////////////////////////////////////////
+export default function () {
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const router = express.Router()
 
   const shouldCompress = (req, res) => {
@@ -37,30 +36,21 @@ module.exports = function () {
     filter: shouldCompress
   }))
 
-  //const wp = new WebPurify({
-  //  api_key: config.webpurify_API_KEY
-    //, endpoint:   'us'  // Optional, available choices: 'eu', 'ap'. Default: 'us'.
-    //, enterprise: false // Optional, set to true if you are using the enterprise API, allows SSL
-  //});
-
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////
-  router.get('/:db', async(req, res) => {
-
+  /// ////////////////////////////////////////////////////
+  router.get('/:db', async (req, res) => {
     try {
-
       const db = req.params.db
 
       const dbSvc = ServiceManager.getService(
         config.database.dbName)
 
       const materialsConfig =
-        config.database.materials[db]
+        config.database.materials[db] || db
 
       if (!materialsConfig) {
-
         res.status(404)
         res.json('Invalid config')
         return
@@ -69,17 +59,17 @@ module.exports = function () {
       const opts = {
         sort: {
           name: 1
-        }
+        },
+        query: JSON.parse(req.query.query || null)
       }
-
-      const items = await dbSvc.getItems(
+      if (process.env.NODE_ENV == 'development') { console.log(opts) }
+      const items = await (opts.query ? dbSvc.findMany(materialsConfig, opts) : dbSvc.getItems(
         materialsConfig.collection,
-        opts)
+        opts))
 
       res.json(items)
-
+      if (process.env.NODE_ENV == 'development') { console.log(items) }
     } catch (ex) {
-
       console.log(ex)
 
       res.status(ex.statusCode || 500)
@@ -87,14 +77,12 @@ module.exports = function () {
     }
   })
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   router.get('/:db/:id', async (req, res) => {
-
     try {
-
       const db = req.params.db
 
       const dbSvc = ServiceManager.getService(
@@ -104,7 +92,6 @@ module.exports = function () {
         config.database.materials[db]
 
       if (!materialsConfig) {
-
         res.status(404)
         return res.json('Invalid collection')
       }
@@ -116,24 +103,21 @@ module.exports = function () {
           }
         })
 
-      res.json (item)
-
+      res.json(item)
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   //
   //
-  ///////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////
   router.post('/:db', async (req, res) => {
-
     try {
-
       const db = req.params.db
+
       const dbSvc = ServiceManager.getService(
         config.database.dbName)
 
@@ -141,38 +125,51 @@ module.exports = function () {
         config.database.materials[db]
 
       if (!materialsConfig) {
-
         res.status(404)
         res.json('Invalid config')
         return
       }
 
       const material = req.body
-      const badwords = await checkProfanity(material.supplier)
 
-      if (badwords === 0) {
-        const query = { name: material.name }
-        await dbSvc.upsert(
-          materialsConfig.collection,
-          material, query)
-  
-        res.json(material)        
-      } else {
-        res.status(400)
-        res.json('mind your words mate..')
-      }
+      const query = { _id: new mongo.ObjectId(material._id) }
+      if (process.env.NODE_ENV == 'development') { console.log(material, query) }
+      delete material._id
+      await dbSvc.upsert(
+        materialsConfig.collection,
+        material, query)
 
+      res.json(material)
     } catch (ex) {
-
+      if (process.env.NODE_ENV == 'development') { console.log(ex) }
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  //  profanity checker
-  async function checkProfanity(text){
-    return null;//wp.checkCount(text)
-  }
+  router.post('/:db/:id', async (req, res) => {
+    try {
+      const db = req.params.db
 
-  return router;
+      const dbSvc = ServiceManager.getService(
+        config.database.dbName)
+
+      const material = req.body
+
+      const query = { model_id: req.params.id, dbid: material.dbid }
+      if (process.env.NODE_ENV == 'development') { console.log(material, query) }
+      delete material._id
+      await dbSvc.upsert(
+        db,
+        material, query)
+
+      res.json(material)
+    } catch (ex) {
+      if (process.env.NODE_ENV == 'development') { console.log(ex) }
+      res.status(ex.statusCode || 500)
+      res.json(ex)
+    }
+  })
+
+  return router
 }

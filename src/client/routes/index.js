@@ -1,43 +1,25 @@
-import CoreLayout from '../layouts/CoreLayout'
-import PageNotFoundRoute from './PageNotFound'
-import ConfiguratorRoute from './Configurator'
-import DatabaseRoute from './Database'
-import GalleryRoute from './Gallery'
-import ViewerRoute from './Viewer'
-import HomeRoute from './Home'
-import TestRoute from './Test'
+import React from 'react'
+import { Route, Switch } from 'react-router'
+import loadable from '@loadable/component'
+import { ReactLoader } from '../components/Loader'
+import CoreLayout from '../components/Views/layouts/CoreLayout'
+import { history } from 'BrowserContext'
+import { ConnectedRouter } from 'connected-react-router'
+const loadableOptions = {
+  fallback: <ReactLoader />
+}
+export default () => (
+  <ConnectedRouter history={history}>
+    <CoreLayout>
 
-export const createRoutes = (store) => ({
-  defaultRoute  : HomeRoute(store),
-  indexRoute  : HomeRoute(store),
-  component   : CoreLayout,
-  path        : '/',
-  childRoutes : [
-    ConfiguratorRoute(store),
-    DatabaseRoute(store),
-    GalleryRoute(store),
-    ViewerRoute(store),
-    TestRoute(store),
-    PageNotFoundRoute(store)
-  ]
-})
+      <Switch>
+        <Route exact path='/' component={loadable(() => import('../components/Views/Home'), loadableOptions)} />
+        <Route path='/gallery' component={loadable(() => import('../components/Views/Gallery'), loadableOptions)} />
+        <Route path='/database' component={loadable(() => import('../components/Views/Database'), loadableOptions)} />
+        <Route path='/configurator' component={loadable(() => import('../components/Views/Configurator'), loadableOptions)} />
+        <Route component={loadable(() => import('../components/Views/PageNotFound'), loadableOptions)} />
+      </Switch>
+    </CoreLayout>
+  </ConnectedRouter>
 
-/*  Note: childRoutes can be chunked or otherwise loaded programmatically
-    using getChildRoutes with the following signature:
-
-    getChildRoutes (location, cb) {
-      require.ensure([], (require) => {
-        cb(null, [
-          // Remove imports!
-          require('./Counter').default(store)
-        ])
-      })
-    }
-
-    However, this is not necessary for code-splitting! It simply provides
-    an API for async route definitions. Your code splitting should occur
-    inside the route `getComponent` function, since it is only invoked
-    when the route exists and matches.
-*/
-
-export default createRoutes
+)

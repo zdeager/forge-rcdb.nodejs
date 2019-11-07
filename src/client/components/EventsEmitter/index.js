@@ -1,5 +1,4 @@
-import {EventsEmitterComposer} from './EventsEmitter'
-import EventsEmitter from './EventsEmitter'
+import EventsEmitter, { EventsEmitterComposer } from './EventsEmitter'
 
 EventsEmitter.Composer = EventsEmitterComposer
 

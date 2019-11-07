@@ -3,12 +3,11 @@ import compression from 'compression'
 import express from 'express'
 import Debug from 'debug'
 
-module.exports = function() {
-
-  /////////////////////////////////////////////////////////
+export default function () {
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const router = express.Router()
 
   const shouldCompress = (req, res) => {
@@ -19,210 +18,182 @@ module.exports = function() {
     filter: shouldCompress
   }))
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // return sequences
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/:modelId/sequences',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const db = req.params.db
-
-      const modelSvc = ServiceManager.getService(
-        db + '-ModelSvc')
-
-      const response =
+        const response =
         await modelSvc.getConfigSequences(
           req.params.modelId)
 
-      res.json(response)
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // add sequence
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.post('/:db/:modelId/sequences',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const sequence = req.body.sequence
 
-      const db = req.params.db
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const sequence = req.body.sequence
-
-      const modelSvc = ServiceManager.getService(
-        db + '-ModelSvc')
-
-      const response =
-        await modelSvc.addConfigSequence (
+        const response =
+        await modelSvc.addConfigSequence(
           req.params.modelId,
           sequence)
 
-      res.json(response)
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // update sequence
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.put('/:db/:modelId/sequences',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const sequence = req.body.sequence
 
-      const db = req.params.db
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const sequence = req.body.sequence
+        const response =
+        await modelSvc.updateConfigSequence(
+          req.params.modelId,
+          sequence)
 
-      const modelSvc = ServiceManager.getService (
-        db + '-ModelSvc')
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-      const response =
-        await modelSvc.updateConfigSequence (
-        req.params.modelId,
-        sequence)
-
-      res.json(response)
-
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // delete sequence
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.delete('/:db/:modelId/sequences/:sequenceId',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const db = req.params.db
-
-      const modelSvc = ServiceManager.getService (
-        db + '-ModelSvc')
-
-      const response =
-        await modelSvc.deleteConfigSequence (
+        const response =
+        await modelSvc.deleteConfigSequence(
           req.params.modelId,
           req.params.sequenceId)
 
-      res.json(response)
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // get states from specific sequence
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/:db/:modelId/sequences/:sequenceId/states',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const db = req.params.db
-
-      const modelSvc = ServiceManager.getService (
-        db + '-ModelSvc')
-
-      const response =
-        await modelSvc.getConfigSequenceStates (
+        const response =
+        await modelSvc.getConfigSequenceStates(
           req.params.modelId,
           req.params.sequenceId)
 
-      res.json(response)
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // add state to specific sequence.
   // body.state can be a single state or an array of states
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.post('/:db/:modelId/sequences/:sequenceId/states',
-    async(req, res)=> {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const state = req.body.state
 
-      const db = req.params.db
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const state = req.body.state
-
-      const modelSvc = ServiceManager.getService (
-        db + '-ModelSvc')
-
-      const response =
-        await modelSvc.addConfigSequenceStates (
+        const response =
+        await modelSvc.addConfigSequenceStates(
           req.params.modelId,
           req.params.sequenceId,
           state)
 
-      res.json(response)
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // delete sequence state
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.delete(
     '/:db/:modelId/sequences/:sequenceId/states/:stateId',
-    async(req, res) => {
+    async (req, res) => {
+      try {
+        const db = req.params.db
 
-    try {
+        const modelSvc = ServiceManager.getService(
+          db + '-ModelSvc')
 
-      const db = req.params.db
-
-      const modelSvc = ServiceManager.getService(
-        db + '-ModelSvc')
-
-      const response =
+        const response =
         await modelSvc.deleteConfigSequenceState(
-        req.params.modelId,
-        req.params.sequenceId,
-        req.params.stateId)
+          req.params.modelId,
+          req.params.sequenceId,
+          req.params.stateId)
 
-      res.json(response)
-
-    } catch (error) {
-
-      res.status(error.statusCode || 500)
-      res.json(error)
-    }
-  })
+        res.json(response)
+      } catch (error) {
+        res.status(error.statusCode || 500)
+        res.json(error)
+      }
+    })
 
   return router
 }

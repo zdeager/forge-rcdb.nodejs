@@ -6,13 +6,11 @@ import path from 'path'
 import fs from 'fs'
 
 export default class UploadSvc extends BaseSvc {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  constructor(config) {
-
+  /// //////////////////////////////////////////////////////
+  constructor (config) {
     super(config)
 
     // Initialize upload
@@ -28,7 +26,7 @@ export default class UploadSvc extends BaseSvc {
       }
     })
 
-    this.multer = multer({storage: storage})
+    this.multer = multer({ storage: storage })
 
     // start cleanup task to remove uploaded temp files
     setInterval(() => {
@@ -40,44 +38,38 @@ export default class UploadSvc extends BaseSvc {
     }, 5 * 1000)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  name() {
-
+  /// //////////////////////////////////////////////////////
+  name () {
     return 'UploadSvc'
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   get uploader () {
-
     return this.multer
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   clean (dir, maxAge = 0) {
-
     console.log(`Cleaning Dir: ${dir}`)
 
     fs.readdir(dir, (err, files) => {
-
       if (err) {
         return console.error(err)
       }
 
       files.forEach((file) => {
-
         const filePath = path.join(dir, file)
 
         fs.stat(filePath, (err, stat) => {
-
           if (err) {
             return console.error(err)
           }
@@ -87,11 +79,9 @@ export default class UploadSvc extends BaseSvc {
           const age = (now - new Date(stat.ctime)) / 1000
 
           if (age > maxAge) {
-
             return rimraf(filePath, (err) => {
-
               if (err) {
-                return console.error(err);
+                return console.error(err)
               }
             })
           }
@@ -100,4 +90,3 @@ export default class UploadSvc extends BaseSvc {
     })
   }
 }
-

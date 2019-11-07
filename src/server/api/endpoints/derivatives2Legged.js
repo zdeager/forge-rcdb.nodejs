@@ -2,14 +2,13 @@ import ServiceManager from '../services/SvcManager'
 import compression from 'compression'
 import express from 'express'
 import mongo from 'mongodb'
-import config from'c0nfig'
+import config from 'c0nfig'
 
 module.exports = function () {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const router = express.Router()
 
   const shouldCompress = (req, res) => {
@@ -20,12 +19,11 @@ module.exports = function () {
     filter: shouldCompress
   }))
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   const guid = (format = 'xxxxxxxxxx') => {
-
     var d = new Date().getTime()
 
     var guid = format.replace(
@@ -39,15 +37,13 @@ module.exports = function () {
     return guid
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /formats
   // Get supported formats
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/formats', async (req, res) => {
-
     try {
-
       const forgeSvc =
         ServiceManager.getService(
           'ForgeSvc')
@@ -61,23 +57,19 @@ module.exports = function () {
       const response = await derivativesSvc.getFormats(token)
 
       res.json(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /metadata/{urn}
   // Get design metadata
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/metadata/:urn', async (req, res) => {
-
     try {
-
       const urn = req.params.urn
 
       const forgeSvc =
@@ -91,26 +83,22 @@ module.exports = function () {
 
       const response =
         await derivativesSvc.getMetadata(
-        token, urn)
+          token, urn)
 
       res.json(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /manifest/{urn}
   // Get design manifest
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/manifest/:urn', async (req, res) => {
-
     try {
-
       const urn = req.params.urn
 
       const forgeSvc =
@@ -124,26 +112,22 @@ module.exports = function () {
 
       const response =
         await derivativesSvc.getManifest(
-        token, urn)
+          token, urn)
 
       res.json(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /hierarchy/{urn}/{guid}
   // Get hierarchy for design
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/hierarchy/:urn/:guid', async (req, res) => {
-
     try {
-
       const urn = req.params.urn
 
       const guid = req.params.guid
@@ -163,23 +147,19 @@ module.exports = function () {
           token, urn, guid)
 
       res.json(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /properties/{urn}/{guid}
   // Get properties for design
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/properties/:urn/:guid', async (req, res) => {
-
     try {
-
       const objectId = req.query.objectId || null
 
       const guid = req.params.guid
@@ -197,28 +177,24 @@ module.exports = function () {
 
       const response =
         await derivativesSvc.getProperties(
-        token, urn, guid, {
-          objectId: objectId
-        })
+          token, urn, guid, {
+            objectId: objectId
+          })
 
       res.json(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /download
   // Get download uri for derivative resource
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/download', async (req, res) => {
-
     try {
-
       const filename = req.query.filename || 'download'
 
       const derivativeUrn = req.query.derivativeUrn
@@ -247,23 +223,19 @@ module.exports = function () {
         `attachment filename="${filename}"`)
 
       res.end(response)
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // GET /thumbnail/{urn}
   // Get design thumbnail
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.get('/thumbnails/:urn', async (req, res) => {
-
     try {
-
       const urn = req.params.urn
 
       const forgeSvc =
@@ -284,34 +256,27 @@ module.exports = function () {
 
       const response =
         await derivativesSvc.getThumbnail(
-        token, urn, options)
+          token, urn, options)
 
       if (req.query.base64) {
-
         res.end(response)
-
       } else {
-
         res.contentType('image/png')
         res.end(response, 'binary')
       }
-
     } catch (ex) {
-
       res.status(ex.statusCode || 500)
       res.json(ex)
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // POST /job
   // Post a derivative job - generic
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   router.post('/job/:db/:modelId', async (req, res) => {
-
     try {
-
       const userSvc = ServiceManager.getService(
         'UserSvc')
 
@@ -319,7 +284,6 @@ module.exports = function () {
         req.session)
 
       if (!user) {
-
         res.status(401)
         return res.json('Unauthorized')
       }
@@ -332,7 +296,6 @@ module.exports = function () {
         config.database.models[db]
 
       if (!modelsConfig) {
-
         res.status(404)
         return res.json('Invalid collection')
       }
@@ -348,15 +311,13 @@ module.exports = function () {
       })
 
       if (dbModel.owner !== user.userId) {
-
         res.status(401)
         return res.json('Unauthorized')
       }
 
-      const {job, socketId} = req.body
+      const { job, socketId } = req.body
 
       if (job.input.urn !== dbModel.model.urn) {
-
         res.status(401)
         return res.json('Unauthorized')
       }
@@ -384,25 +345,22 @@ module.exports = function () {
       const response =
         await derivativesSvc.postJobWithProgress(
           token, job, {
-          query: {
-            outputType: format
-          },
-          onProgress: (progress) => {
-
-            socketSvc.broadcast (
-              'job.progress', {
-                progress,
-                filename,
-                jobId,
-                job
-              }, socketId)
-          }
-      })
+            query: {
+              outputType: format
+            },
+            onProgress: (progress) => {
+              socketSvc.broadcast(
+                'job.progress', {
+                  progress,
+                  filename,
+                  jobId,
+                  job
+                }, socketId)
+            }
+          })
 
       res.json(response)
-
     } catch (ex) {
-
       console.log(ex)
 
       res.status(ex.statusCode || 500)
@@ -410,12 +368,12 @@ module.exports = function () {
     }
   })
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   // DELETE /manifest/{urn}
   // Delete design manifest
   //
-  /////////////////////////////////////////////////////////
-  //router.delete('/manifest/:urn', async (req, res) => {
+  /// //////////////////////////////////////////////////////
+  // router.delete('/manifest/:urn', async (req, res) => {
   //
   //  try {
   //
@@ -437,7 +395,7 @@ module.exports = function () {
   //    res.status(ex.statusCode || 500)
   //    res.json(ex)
   //  }
-  //})
+  // })
 
   return router
 }

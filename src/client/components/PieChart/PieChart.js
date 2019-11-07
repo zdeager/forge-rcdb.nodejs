@@ -1,53 +1,47 @@
-/////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////
 // PieChart
 // by Philippe Leefsma, April 2016
 //
-/////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////
 import React from 'react'
 import d3pie from 'd3pie'
 import './PieChart.scss'
 import d3 from 'd3'
 
 class PieChart extends React.Component {
-
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   constructor (props) {
-
-    super (props)
+    super(props)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   componentDidMount () {
-
     this.draw(this.props.data)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   shouldComponentUpdate (nextProps) {
-
     if (nextProps.dataGuid !== this.props.dataGuid) {
-
       return true
     }
 
     return false
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   componentDidUpdate () {
-
     $(this.container).empty()
 
     this.draw(this.props.data, {
@@ -59,14 +53,12 @@ class PieChart extends React.Component {
     })
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
-  draw (data, opts= {}) {
-
+  /// //////////////////////////////////////////////////////
+  draw (data, opts = {}) {
     if (!data || !data.length) {
-
       return
     }
 
@@ -74,7 +66,7 @@ class PieChart extends React.Component {
       this.container.offsetHeight,
       this.container.offsetWidth)
 
-    const options =  Object.assign({}, {
+    const options = Object.assign({}, {
 
       size: {
         canvasHeight: size,
@@ -89,7 +81,7 @@ class PieChart extends React.Component {
 
       tooltips: {
         enabled: true,
-        type: "placeholder",
+        type: 'placeholder',
         placeholderParser: (index, replacements) => {
           Object.assign(replacements, {
             unit: data[index].unit
@@ -98,11 +90,11 @@ class PieChart extends React.Component {
         string: '{label}',
         styles: {
           fadeInSpeed: 250,
-          backgroundColor: "#bababa",
+          backgroundColor: '#bababa',
           backgroundOpacity: 0.85,
-          color: "#00",
+          color: '#00',
           borderRadius: 2,
-          font: "ArtifaktElementRegular",
+          font: 'ArtifaktElementRegular',
           fontSize: 10,
           padding: 4,
           zIndex: 1000
@@ -122,10 +114,8 @@ class PieChart extends React.Component {
 
       callbacks: {
         onClickSegment: (event) => {
-
           if (this.props.onSegmentClicked) {
-
-            this.props.onSegmentClicked (
+            this.props.onSegmentClicked(
               event.data, event.expanded)
           }
         }
@@ -144,21 +134,19 @@ class PieChart extends React.Component {
     this.applyCustomProps()
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   applyCustomProps () {
-
     $(this.container).find('svg').css({
-      transform: `translate(0px, -2px)`,
+      transform: 'translate(0px, -2px)',
       overflow: 'visible'
     })
 
-    setTimeout(()=> {
-
+    setTimeout(() => {
       const $path = $(this.container).find(
-        `g[class*="_arc"] > path`)
+        'g[class*="_arc"] > path')
 
       $path.css({
         'stroke-width': '0'
@@ -166,14 +154,14 @@ class PieChart extends React.Component {
     }, 100)
   }
 
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   //
   //
-  /////////////////////////////////////////////////////////
+  /// //////////////////////////////////////////////////////
   render () {
-
     return (
-      <div className="pie-chart" ref={ (div) => {
+      <div
+        className='pie-chart' ref={(div) => {
           this.container = div
         }}
       />
