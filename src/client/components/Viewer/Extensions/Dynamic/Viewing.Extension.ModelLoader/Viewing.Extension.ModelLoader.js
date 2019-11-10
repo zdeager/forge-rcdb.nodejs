@@ -1,7 +1,7 @@
 /// //////////////////////////////////////////////////////
 // Viewing.Extension.ModelLoader
 // by Philippe Leefsma, April 2017
-//
+//    zde 2019
 /// //////////////////////////////////////////////////////
 import MultiModelExtensionBase from 'Viewer.MultiModelExtensionBase'
 import ContentEditable from 'react-contenteditable'
@@ -120,7 +120,7 @@ class ModelLoaderExtension extends MultiModelExtensionBase {
         })
     }
     console.log('Viewing.Extension.ModelLoader loaded')
-
+    this.setDocking(true);
     return true
   }
 
@@ -277,9 +277,10 @@ class ModelLoaderExtension extends MultiModelExtensionBase {
             //const path = doc.getViewablePath(items[0])
 
             var viewables = doc.getRoot().getDefaultGeometry();
-            console.log(viewables);
+            //var viewables = doc.getRoot().search({'type':'geometry', 'role': '2d'});
+            // console.log(viewables);
             const path = doc.getViewablePath(viewables);
-            console.log(path);
+            // console.log(path);
 
             this.viewer.loadModel(path, loadOptions,
               (model) => {

@@ -1,7 +1,7 @@
 /// //////////////////////////////////////////////////////
 // Viewing.Extension.DualViewer
 // by Philippe Leefsma, April 2016
-//
+//    zde 2019
 /// //////////////////////////////////////////////////////
 import MultiModelExtensionBase from 'Viewer.MultiModelExtensionBase'
 import WidgetContainer from 'WidgetContainer'
@@ -103,7 +103,7 @@ class DualViewerExtension extends MultiModelExtensionBase {
   //
   /// //////////////////////////////////////////////////////
   async onModelActivated (event) {
-    if (event.source !== 'model.loaded') {
+    if (event.source === 'model.loaded') {
       await this.react.setState({
         disabled: true
       })
@@ -119,8 +119,10 @@ class DualViewerExtension extends MultiModelExtensionBase {
       this.viewerDocument =
         await Toolkit.loadDocument(model.urn)
 
-      const items = Toolkit.getViewableItems(
-        this.viewerDocument, '2d')
+      // const items = Toolkit.getViewableItems(
+      //   this.viewerDocument, '2d')
+
+      const items = this.viewerDocument.getRoot().search({'type':'geometry', 'role': '2d'});
 
       await this.react.setState({
         disabled: false,
@@ -141,40 +143,40 @@ class DualViewerExtension extends MultiModelExtensionBase {
 
       this.dualViewer.start()
 
-      const model =
-        this.viewer.activeModel ||
-        this.viewer.model ||
-        this.options.dbModel.model
+      // const model =
+      //   this.viewer.activeModel ||
+      //   this.viewer.model ||
+      //   this.options.dbModel.model
 
-      const urn =
-        this.options.urn ||
-        model.urn
+      // const urn =
+      //   this.options.urn ||
+      //   model.urn
 
-      this.viewerDocument =
-        this.options.viewerDocument ||
-        await Toolkit.loadDocument(urn)
+      // this.viewerDocument =
+      //   this.options.viewerDocument ||
+      //   await Toolkit.loadDocument(urn)
 
-      const items = Toolkit.getViewableItems(
-        this.viewerDocument, '2d')
+      // const items = Toolkit.getViewableItems(
+      //   this.viewerDocument, '2d')
 
-      if (items.length) {
-        await this.react.setState({
-          disabled: false,
-          items
-        })
+      // if (items.length) {
+      //   await this.react.setState({
+      //     disabled: false,
+      //     items
+      //   })
 
-        this.setActiveView(items[this.pathIndex])
+      //   this.setActiveView(items[this.pathIndex])
 
-        $('#viewer-dropdown').parent().find('ul').css({
-          height: Math.min(
-            $('.dual-viewer').height() - 42,
-            items.length * 26)
-        })
+      //   $('#viewer-dropdown').parent().find('ul').css({
+      //     height: Math.min(
+      //       $('.dual-viewer').height() - 42,
+      //       items.length * 26)
+      //   })
 
-        this.dualViewer.addEventListener(
-          Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
-          this.onDualViewerSelection)
-      }
+      //   this.dualViewer.addEventListener(
+      //     Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
+      //     this.onDualViewerSelection)
+      // }
     } catch (ex) {
       console.log('Viewer Initialization Error:')
       console.log(ex)
@@ -239,7 +241,7 @@ class DualViewerExtension extends MultiModelExtensionBase {
             this.pathIndex = idx
           }}
         >
-          {item.name}
+          {item.data.name}
         </MenuItem>
       )
     })
@@ -268,7 +270,7 @@ class DualViewerExtension extends MultiModelExtensionBase {
   /// //////////////////////////////////////////////////////
   async setActiveView (item) {
     await this.react.setState({
-      activeView: item.name,
+      activeView: item.data.name,
       showLoader: true,
       disabled: true
     })
@@ -281,8 +283,8 @@ class DualViewerExtension extends MultiModelExtensionBase {
     }
 
     const options = {
-      sharedPropertyDbPath:
-        this.viewerDocument.getPropertyDbPath()
+      // sharedPropertyDbPath:
+      //   this.viewerDocument.getPropertyDbPath()
     }
 
     this.dualViewer.loadModel(path, options, (model) => {

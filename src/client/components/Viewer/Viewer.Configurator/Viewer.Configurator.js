@@ -234,7 +234,6 @@ class ViewerConfigurator extends BaseComponent {
         }
 
         this.assignState(extState).then(() => {
-
           viewer.loadExtension (
             extension.id, options).then((extInstance) => {
 
@@ -713,7 +712,7 @@ class ViewerConfigurator extends BaseComponent {
           viewer, this.loader)
       }
 
-      viewer.setTheme(appState.storage.theme.viewer.theme)
+      //viewer.setTheme(appState.storage.theme.viewer.theme)
 
       viewer.start()
 
@@ -725,96 +724,96 @@ class ViewerConfigurator extends BaseComponent {
         Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
         this.onGeometryLoaded)
 
-      viewer.prefs.tag('ignore-producer')
+      // viewer.prefs.tag('ignore-producer')
 
-      const viewerTheme = appState.storage.theme.viewer
+      // const viewerTheme = appState.storage.theme.viewer
 
-      viewer.setLightPreset(viewerTheme.lightPreset)
+      // viewer.setLightPreset(viewerTheme.lightPreset)
 
-      const bgClr = viewerTheme.backgroundColor
+      // const bgClr = viewerTheme.backgroundColor
 
-      viewer.setBackgroundColor(
-        bgClr[0], bgClr[1], bgClr[2],
-        bgClr[3], bgClr[4], bgClr[5])
+      // viewer.setBackgroundColor(
+      //   bgClr[0], bgClr[1], bgClr[2],
+      //   bgClr[3], bgClr[4], bgClr[5])
 
       await this.setupDynamicExtensions (viewer)
 
-      if (modelInfo) {
+      // if (modelInfo) {
 
-        const lmvProxy =
-          modelInfo.proxy || 'lmv-proxy-2legged'
+      //   const lmvProxy =
+      //     modelInfo.proxy || 'lmv-proxy-2legged'
 
-        Autodesk.Viewing.endpoint.setEndpointAndApi(
-          `${window.location.origin}/${lmvProxy}`,
-          'derivativeV2')
+      //   Autodesk.Viewing.endpoint.setEndpointAndApi(
+      //     `${window.location.origin}/${lmvProxy}`,
+      //     'derivativeV2')
 
-          switch (this.state.dbModel.env) {
+      //     switch (this.state.dbModel.env) {
 
-          case 'Local':
+      //     case 'Local':
 
-            const localOptions = {
-              placementTransform: this.buildTransform(
-                modelInfo.transform),
-                [modelInfo.globalOffset?'globalOffset':undefined]:modelInfo.globalOffset
-            }
-            viewer.loadModel(modelInfo.path, localOptions, (model) => {
+      //       const localOptions = {
+      //         placementTransform: this.buildTransform(
+      //           modelInfo.transform),
+      //           [modelInfo.globalOffset?'globalOffset':undefined]:modelInfo.globalOffset
+      //       }
+      //       viewer.loadModel(modelInfo.path, localOptions, (model) => {
 
-              model.name = modelInfo.displayName || modelInfo.name
-              model.dbModelId = this.state.dbModel._id
-              model.urn = modelInfo.urn
-              model.guid = this.guid()
+      //         model.name = modelInfo.displayName || modelInfo.name
+      //         model.dbModelId = this.state.dbModel._id
+      //         model.urn = modelInfo.urn
+      //         model.guid = this.guid()
 
-              viewer.activeModel = model
+      //         viewer.activeModel = model
 
-              this.context.eventSvc.emit('model.loaded', {
-                model
-              })
-            })
+      //         this.context.eventSvc.emit('model.loaded', {
+      //           model
+      //         })
+      //       })
 
-            break
+      //       break
 
-          default:
+      //     default:
 
-            const urn = modelInfo.urn
+      //       const urn = modelInfo.urn
 
-            this.viewerDocument =
-              await this.loadDocument(urn)
+      //       this.viewerDocument =
+      //         await this.loadDocument(urn)
 
-            const query = modelInfo.query || [
-              { type: 'geometry', role: '3d' },
-              { type: 'geometry', role: '2d' }
-            ]
+      //       const query = modelInfo.query || [
+      //         { type: 'geometry', role: '3d' },
+      //         { type: 'geometry', role: '2d' }
+      //       ]
 
-            const path = this.getViewablePath(
-              this.viewerDocument,
-              modelInfo.pathIndex || 0,
-              query)
+      //       const path = this.getViewablePath(
+      //         this.viewerDocument,
+      //         modelInfo.pathIndex || 0,
+      //         query)
 
-            const loadOptions = {
-              sharedPropertyDbPath:
-                this.viewerDocument.getPropertyDbPath(),
-              placementTransform: this.buildTransform(
-                modelInfo.transform),
-                [modelInfo.globalOffset?'globalOffset':undefined]:modelInfo.globalOffset
-            }
+      //       const loadOptions = {
+      //         sharedPropertyDbPath:
+      //           this.viewerDocument.getPropertyDbPath(),
+      //         placementTransform: this.buildTransform(
+      //           modelInfo.transform),
+      //           [modelInfo.globalOffset?'globalOffset':undefined]:modelInfo.globalOffset
+      //       }
 
-            viewer.loadModel(path, loadOptions, (model) => {
+      //       viewer.loadModel(path, loadOptions, (model) => {
 
-              model.name = modelInfo.displayName || modelInfo.name
-              model.dbModelId = this.state.dbModel._id
-              model.urn = modelInfo.urn
-              model.guid = this.guid()
+      //         model.name = modelInfo.displayName || modelInfo.name
+      //         model.dbModelId = this.state.dbModel._id
+      //         model.urn = modelInfo.urn
+      //         model.guid = this.guid()
 
-              viewer.activeModel = model
+      //         viewer.activeModel = model
 
-              this.context.eventSvc.emit('model.loaded', {
-                model
-              })
-            })
+      //         this.context.eventSvc.emit('model.loaded', {
+      //           model
+      //         })
+      //       })
 
 
-        }
-      }
+      //   }
+      // }
 
     } catch(ex) {
 
@@ -868,7 +867,7 @@ class ViewerConfigurator extends BaseComponent {
   //
   //
   /////////////////////////////////////////////////////////
-  renderExtension () {
+  renderExtension (is2D) {
 
     const { renderExtension } = this.state
 
@@ -881,10 +880,21 @@ class ViewerConfigurator extends BaseComponent {
       ? this.state.renderExtension.render(renderOptions)
       : <div/>
 
+    let tmp = null;
+    //console.log(content.props.children)
+    if (content.props.children)
+    {
+      if (is2D)
+        tmp = React.cloneElement(content, content.props, content.props.children[1]);
+      else
+        tmp = React.cloneElement(content, content.props, [content.props.children[0], content.props.children[2]]);
+      //console.log(tmp);
+    }
+
     return (
       <div className="data-pane">
         <ReactLoader show={!renderExtension}/>
-        { content }
+        { tmp || content }
       </div>
     )
   }
@@ -1025,21 +1035,41 @@ class ViewerConfigurator extends BaseComponent {
         return (
           <ReflexContainer className="configurator"
             key="configurator" orientation='vertical'>
-            <ReflexElement
-              onStartResize={this.onViewerStartResize}
-              onStopResize={this.onViewerStopResize}
-              propagateDimensions={true}
-              onResize={this.onResize}
-              flex={viewerFlex}>
-              {this.renderModel(modelInfo)}
+            
+            <ReflexElement flex="0.65">
+              <ReflexContainer className="configurator"
+                key="configurator" orientation='horizontal'>
+
+                <ReflexElement
+                  onStartResize={this.onViewerStartResize}
+                  onStopResize={this.onViewerStopResize}
+                  propagateDimensions={true}
+                  onResize={this.onResize}
+                  flex="0.55">
+                  {this.renderModel(modelInfo)}
+                </ReflexElement>
+
+                <ReflexSplitter
+                  onStopResize={() => this.forceUpdate()}
+                  style={paneExtStyle}
+                />
+
+                <ReflexElement style={paneExtStyle}>
+                  {this.renderExtension(true)}
+                </ReflexElement>
+
+              </ReflexContainer>
             </ReflexElement>
+
             <ReflexSplitter
               onStopResize={() => this.forceUpdate()}
               style={paneExtStyle}
             />
+
             <ReflexElement style={paneExtStyle}>
-              {this.renderExtension()}
+              {this.renderExtension(false)}
             </ReflexElement>
+
           </ReflexContainer>
         )
 

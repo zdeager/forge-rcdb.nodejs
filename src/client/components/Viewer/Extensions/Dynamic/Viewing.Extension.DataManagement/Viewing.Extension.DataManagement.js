@@ -1,7 +1,7 @@
 /// ////////////////////////////////////////////////////////
 // DataManagement Viewer Extension
 // By Philippe Leefsma, Autodesk Inc, July 2017
-//
+//    zde 2019
 /// ////////////////////////////////////////////////////////
 import MultiModelExtensionBase from 'Viewer.MultiModelExtensionBase'
 import FolderSearchPanel from './FolderSearchPanel'
@@ -95,7 +95,7 @@ class DataManagementExtension extends MultiModelExtensionBase {
     this.socketSvc.on(
       'dm.upload.complete',
       this.onUploadComplete)
-
+    this.setDocking(true);
     console.log('Viewing.Extension.DataManagement loaded')
 
     return true
@@ -168,7 +168,7 @@ class DataManagementExtension extends MultiModelExtensionBase {
         const base64 = `data:image/png;base64,${thumbnail}`
 
         node.setThumbnail(base64)
-		  }
+      }
     } catch (ex) {
       console.log(ex)
     }
@@ -367,6 +367,7 @@ class DataManagementExtension extends MultiModelExtensionBase {
     } finally {
       event.node.showLoader(false)
     }
+    //console.log(this.viewer.activeModel.getFragmentList());
   }
 
   /// //////////////////////////////////////////////////////
