@@ -123,8 +123,8 @@ class DBTable extends React.Component {
           return {
             name: dbItem.name,
             dataSource: dbItem.dataSource,
-            assignee: dbItem.assignee,
             criticality: dbItem.criticality,
+            assignee: dbItem.assignee,
             id: dbItem._id
           }
         }), {
@@ -136,6 +136,10 @@ class DBTable extends React.Component {
               {value:3, label:3},
               {value:4, label:4},
               {value:5, label:5}
+            ],
+            assignee: [
+              {value:1, label:""},
+              {value:2, label:"Sally"}
             ]
           }
         })
@@ -151,6 +155,7 @@ class DBTable extends React.Component {
         })
 
         dbItem.criticality = parseInt($(option).attr('data-value'))
+        dbItem.assignee = parseInt($(option).attr('data-value'))
 
         this.props.onUpdateItem(dbItem)
       })
@@ -269,14 +274,16 @@ class DBTable extends React.Component {
                 data-field="dataSource">
                 <label>Data Source</label>
               </th>
-              <th className="db-column fooEditable"
-                data-field="assignee">
-                Assignee
-              </th>
+              
               <th className="db-column"
                 data-field="criticality"
                 data-ft-control="select">
                 Criticality
+              </th>
+              <th className="db-column"
+                data-field="assignee"
+                data-ft-control="select">
+                Assignee
               </th>
               <th className="db-column hidden">
                 _id
