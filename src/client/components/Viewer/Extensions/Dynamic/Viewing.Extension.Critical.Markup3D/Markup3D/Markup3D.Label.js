@@ -178,27 +178,29 @@ export default class LabelMarker extends GraphicMarker {
       return
     }
 
-    if (LabelMarker.prototype.labelName) {
+    // if (LabelMarker.prototype.labelName) {
 
-      var prop = await Toolkit.getProperty(
-        this.viewer.model,
-        this.dbId,
-        LabelMarker.prototype.labelName,
-        'Not Available')
+    //   var prop = await Toolkit.getProperty(
+    //     this.viewer.model,
+    //     this.dbId,
+    //     LabelMarker.prototype.labelName,
+    //     'Not Available')
 
-      this.updateLabel(
-        prop.displayName,
-        prop.displayValue)
+    //   this.updateLabel(
+    //     prop.displayName,
+    //     prop.displayValue)
 
-      this.item = {
-        value: prop.displayValue,
-        name: prop.displayName
-      }
+    //   this.item = {
+    //     value: prop.displayValue,
+    //     name: prop.displayName
+    //   }
 
-    } else {
+    // } else {
 
-      this.showControls(true)
-    }
+    //   this.showControls(true)
+    // }
+
+    this.showControls(true)
 
     this.emit('created')
   }
@@ -232,35 +234,38 @@ export default class LabelMarker extends GraphicMarker {
 
     var $container = $(`#${this.controlsId}`)
 
-    this.dropdown = new Dropdown({
-      container: $container,
-      title: 'Property',
-      pos: {
-        top: 0, left: 0
-      },
-      menuItems
-    })
+    // this.dropdown = new Dropdown({
+    //   container: $container,
+    //   title: 'Property',
+    //   pos: {
+    //     top: 0, left: 0
+    //   },
+    //   menuItems
+    // })
 
-    this.dropdown.on('item.selected', (item) => {
+    // this.dropdown.on('item.selected', (item) => {
 
-      LabelMarker.prototype.labelName = item.name
+    //   LabelMarker.prototype.labelName = item.name
 
-      this.item = item
+    //   this.item = item
 
-      this.emit('labelSelected')
-    })
+    //   this.emit('labelSelected')
+    // })
 
     var occlusionSwitchId = this.guid()
     var bindSwitchId = this.guid()
     var btnRemoveId = this.guid()
     var btnExitId = this.guid()
 
+    let asset_name = this.guid();
+
     var html = `
+      <input type="text" name="${asset_name}" value="Asset Tag" onfocus="this.value=''" style="color: #a9a9a9">
       <br>
-      <div style="width: 150px;">
+      <div style="width: 150px; margin-top: 8px">
 
         <button id="${btnRemoveId}" class="btn btn-danger btn-ctrl"
-          style="float: left; margin-right: 3px;"
+          style="float: left; margin-right: 3px;margin-left: 3px;"
           data-placement="bottom"
           data-toggle="tooltip"
           data-delay='{"show":"500", "hide":"100"}'
@@ -316,20 +321,21 @@ export default class LabelMarker extends GraphicMarker {
 
     $('#' + btnExitId).click(()=>{
 
-      // ensure some default is set for next markup
-      if (!this.item) {
+      // // ensure some default is set for next markup
+      // if (!this.item) {
 
-        this.item = menuItems[0]
+      //   this.item = menuItems[0]
 
-        LabelMarker.prototype.labelName =
-          this.item.name
-      }
+      //   LabelMarker.prototype.labelName =
+      //     this.item.name
+      // }
 
       this.showControls(false)
 
-      this.updateLabel(
-        this.item.name,
-        this.item.value)
+      const tag = document.getElementsByName(asset_name)[0].value;
+      //console.log(tag);
+      this.item = tag;
+      this.updateLabel(tag)
     })
   }
 
@@ -337,67 +343,116 @@ export default class LabelMarker extends GraphicMarker {
   //
   //
   /////////////////////////////////////////////////////////////////
-  updateLabel (name, value) {
-
-    name = "Asset Tag"
-    value = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 6);
+  updateLabel (asset_tag) {
 
     var snap = Snap($(`#${this.svgId}`)[0])
 
+    snap.attr({
+      height:80
+    })
+
     this.label.remove()
 
-    var nameLabel = snap.paper.text(0, 15,
-      name.replace(':', '') + ': ')
+    /// asset
 
-    var valueLabel = snap.paper.text(
-      nameLabel.getBBox().width, 15,
-      value)
+    var nameAsset = snap.paper.text(0, 15,
+      "Asset Tag: ")
 
-    nameLabel.attr({
+    var valueAsset = snap.paper.text(
+      nameAsset.getBBox().width, 15,
+      asset_tag)
+
+    nameAsset.attr({
       fontFamily: 'Arial',
       fontSize: '13px',
       stroke: '#FF0000'
     })
 
-    valueLabel.attr({
+    valueAsset.attr({
       fontFamily: 'Arial',
       fontSize: '13px',
       stroke: '#000000'
     })
 
-    snap.attr({
-      height:100
+    /// terminal
+
+    var nameTerminal = snap.paper.text(0, nameAsset.getBBox().height*2,
+      "Terminal: ")
+
+    var valueTerminal = snap.paper.text(
+      nameTerminal.getBBox().width, nameAsset.getBBox().height*2,
+      "A")
+
+    nameTerminal.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#FF0000'
     })
 
-    var loc = 'Room ' + Math.floor(1000 + Math.random() * 3000) + 'ABCDEFGHIJ'.charAt(Math.floor(Math.random() * 10))
+    valueTerminal.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#000000'
+    })
 
-    var nameLabel2 = snap.paper.text(0, nameLabel.getBBox().height*2,
-      "Location: ")
+    /// level
 
-    var valueLabel2 = snap.paper.text(
-      nameLabel2.getBBox().width, nameLabel.getBBox().height*2,
+    var nameLevel = snap.paper.text(0, nameAsset.getBBox().height*3,
+      "Level: ")
+
+    var valueLevel = snap.paper.text(
+      nameLevel.getBBox().width, nameAsset.getBBox().height*3,
+      "1")
+
+    nameLevel.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#FF0000'
+    })
+
+    valueLevel.attr({
+      fontFamily: 'Arial',
+      fontSize: '13px',
+      stroke: '#000000'
+    })
+
+    /// room
+
+    var loc = Math.floor(100 + Math.random() * 300)// + 'ABCDEFGHIJ'.charAt(Math.floor(Math.random() * 10))
+
+    var nameRoom = snap.paper.text(0, nameAsset.getBBox().height*4,
+      "Room: ")
+
+    var valueRoom = snap.paper.text(
+      nameRoom.getBBox().width, nameAsset.getBBox().height*4,
       loc)
 
-    nameLabel2.attr({
+    nameRoom.attr({
       fontFamily: 'Arial',
       fontSize: '13px',
       stroke: '#FF0000'
     })
 
-    valueLabel2.attr({
+    valueRoom.attr({
       fontFamily: 'Arial',
       fontSize: '13px',
       stroke: '#000000'
     })
 
-    this.label = snap.group(
-      nameLabel,
-      valueLabel,
-      nameLabel2,
-      valueLabel2);
+    /// create label
 
-    var width = nameLabel.getBBox().width +
-      valueLabel.getBBox().width
+    this.label = snap.group(
+      nameAsset,
+      valueAsset,
+      nameTerminal,
+      valueTerminal,
+      nameLevel,
+      valueLevel,
+      nameRoom,
+      valueRoom);
+
+    var width = nameAsset.getBBox().width +
+      valueAsset.getBBox().width
 
     $(`#${this._markerId}`).css({
       width: width + 10
