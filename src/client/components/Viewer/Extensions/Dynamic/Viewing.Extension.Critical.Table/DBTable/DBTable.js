@@ -139,7 +139,10 @@ class DBTable extends React.Component {
             ],
             assignee: [
               {value:1, label:""},
-              {value:2, label:"Sally"}
+              {value:2, label:"Sally Rhodes"},
+              {value:3, label:"Scott Smith"},
+              {value:4, label:"Tina Luskowitz"},
+              {value:5, label:"Michael Wick"}
             ]
           }
         })

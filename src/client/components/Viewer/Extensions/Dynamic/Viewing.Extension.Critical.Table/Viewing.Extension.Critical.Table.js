@@ -403,6 +403,10 @@ class DatabaseTableExtension extends MultiModelExtensionBase {
           //return (this.criticalMap[critical.name] == null)
        })
 
+    var filterFixed = filteredCritical;
+    filteredCritical[3] = filterFixed[4];
+    filteredCritical[4] = filterFixed[3];
+
     // update state
     this.react.setState({
         items: filteredCritical,
